@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>L&F Balance Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg: #F0F4F3;
+  --card: #FFFFFF;
+  --emerald: #2D9F7F;
+  --emerald-dark: #1A7A5E;
+  --gold: #E8A838;
+  --gold-light: #FFF3DC;
+  --coral: #EF6B6B;
+  --blue: #5B8DEF;
+  --purple: #9B72CF;
+  --text: #1E2D2B;
+  --text-light: #7A8E8B;
+  --border: #D6E4E0;
+  --gradient-g: linear-gradient(135deg, #2D9F7F 0%, #45C4A0 100%);
+  --gradient-gold: linear-gradient(135deg, #E8A838 0%, #F4C76B 100%);
+  --gradient-coral: linear-gradient(135deg, #EF6B6B 0%, #F09090 100%);
+  --gradient-blue: linear-gradient(135deg, #5B8DEF 0%, #82AEFC 100%);
+  --shadow: 0 4px 20px rgba(45,159,127,0.1);
+  --shadow2: 0 8px 32px rgba(45,159,127,0.14);
+  --radius: 20px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Noto Sans SC', 'Quicksand', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; top: -100px; right: -60px;
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(45,159,127,0.1) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none; z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed; bottom: -80px; left: -40px;
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, rgba(232,168,56,0.08) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none; z-index: 0;
+}
+#app { position: relative; z-index: 1; }
+.header {
+  text-align: center; padding: 40px 20px 24px;
+}
+.header-emoji { font-size: 2.6rem; margin-bottom: 6px; }
+.header h1 {
+  font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 1.6rem;
+  background: var(--gradient-g);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.header p { font-size: 0.8rem; color: var(--text-light); margin-top: 4px; }
+.container { max-width: 720px; margin: 0 auto; padding: 0 16px 110px; }
+
+/* Balance Hero */
+.balance-hero {
+  background: var(--gradient-g); border-radius: var(--radius);
+  padding: 28px 24px; text-align: center; color: #fff;
+  margin-bottom: 16px; box-shadow: var(--shadow2);
+  position: relative; overflow: hidden;
+}
+.balance-hero::after {
+  content: ''; position: absolute; top: -30px; right: -30px;
+  width: 100px; height: 100px;
+  background: rgba(255,255,255,0.1); border-radius: 50%;
+}
+.balance-hero::before {
+  content: ''; position: absolute; bottom: -20px; left: -20px;
+  width: 70px; height: 70px;
+  background: rgba(255,255,255,0.08); border-radius: 50%;
+}
+.balance-hero .bl { font-size: 0.75rem; opacity: 0.85; margin-bottom: 4px; }
+.balance-hero .bv {
+  font-family: 'Quicksand', sans-serif; font-size: 2.4rem; font-weight: 700;
+}
+.balance-hero .bu { font-size: 0.7rem; opacity: 0.7; margin-top: 2px; }
+
+/* Summary row */
+.summary-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;
+}
+.summary-card {
+  border-radius: var(--radius); padding: 18px 14px;
+  text-align: center; color: #fff;
+  position: relative; overflow: hidden;
+  box-shadow: var(--shadow); transition: transform 0.3s;
+}
+.summary-card:active { transform: scale(0.96); }
+.summary-card::after {
+  content: ''; position: absolute; top: -15px; right: -15px;
+  width: 50px; height: 50px;
+  background: rgba(255,255,255,0.15); border-radius: 50%;
+}
+.summary-card.income { background: var(--gradient-gold); }
+.summary-card.expense { background: var(--gradient-coral); }
+.summary-card .sc-emoji { font-size: 1.3rem; margin-bottom: 4px; }
+.summary-card .sc-label { font-size: 0.65rem; opacity: 0.9; }
+.summary-card .sc-value { font-family: 'Quicksand', sans-serif; font-size: 1.5rem; font-weight: 700; }
+
+/* Chart */
+.chart-section {
+  background: var(--card); border-radius: var(--radius);
+  padding: 22px 16px; margin-bottom: 20px;
+  box-shadow: var(--shadow); border: 2px solid rgba(45,159,127,0.06);
+}
+.chart-section h2 {
+  font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 0.95rem;
+  color: var(--text); margin-bottom: 14px; text-align: center;
+}
+.chart-tabs {
+  display: flex; justify-content: center; gap: 6px;
+  margin-bottom: 16px; flex-wrap: wrap;
+}
+.chart-tab {
+  padding: 5px 14px; border-radius: 18px;
+  border: 2px solid var(--border); background: #FAFAFA;
+  font-family: 'Noto Sans SC', sans-serif; font-size: 0.7rem;
+  color: var(--text-light); cursor: pointer;
+  transition: all 0.3s; font-weight: 500;
+}
+.chart-tab.active {
+  background: var(--gradient-g); color: #fff;
+  border-color: transparent; box-shadow: 0 3px 12px rgba(45,159,127,0.25);
+}
+.chart-container { position: relative; height: 200px; }
+
+/* Section */
+.section-header {
+  text-align: center; margin-bottom: 14px;
+  font-family: 'Quicksand', sans-serif; font-weight: 700;
+  font-size: 0.95rem; color: var(--text);
+}
+
+/* Record cards */
+.record-card {
+  background: var(--card); border-radius: var(--radius);
+  padding: 18px; margin-bottom: 10px;
+  box-shadow: var(--shadow); border: 2px solid transparent;
+  transition: all 0.25s; position: relative; overflow: hidden;
+}
+.record-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; border-radius: 20px 20px 0 0;
+}
+.record-card.pos::before { background: var(--gradient-g); }
+.record-card.neg::before { background: var(--gradient-coral); }
+.record-card:active { transform: scale(0.98); }
+.record-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.record-date {
+  font-family: 'Quicksand', sans-serif; font-size: 0.8rem;
+  font-weight: 600; color: var(--emerald);
+}
+.record-balance {
+  font-family: 'Quicksand', sans-serif; font-size: 0.78rem;
+  font-weight: 700; padding: 3px 10px; border-radius: 10px;
+  background: rgba(45,159,127,0.08); color: var(--emerald);
+}
+.record-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.record-item {
+  background: #F5F9F8; border-radius: 12px;
+  padding: 8px; text-align: center;
+}
+.record-item.inc-item { background: var(--gold-light); }
+.record-item.exp-item { background: #FFF0F0; }
+.record-item .rl { font-size: 0.55rem; color: var(--text-light); font-weight: 500; }
+.record-item .rv {
+  font-family: 'Quicksand', sans-serif; font-size: 1rem;
+  font-weight: 700; margin-top: 1px; color: var(--text);
+}
+.record-item.inc-item .rv { color: var(--gold); }
+.record-item.exp-item .rv { color: var(--coral); }
+.record-detail-toggle {
+  text-align: center; margin-top: 10px;
+}
+.record-detail-toggle button {
+  background: none; border: none; color: var(--text-light);
+  font-size: 0.68rem; cursor: pointer; font-family: 'Noto Sans SC', sans-serif;
+}
+.record-detail {
+  display: none; margin-top: 10px;
+  grid-template-columns: repeat(3, 1fr); gap: 6px;
+}
+.record-detail.open { display: grid; }
+.record-detail .rd-item {
+  font-size: 0.6rem; padding: 5px 6px;
+  background: #F8FAFA; border-radius: 8px; text-align: center;
+}
+.record-detail .rd-item .rdl { color: var(--text-light); }
+.record-detail .rd-item .rdv {
+  font-family: 'Quicksand', sans-serif; font-weight: 600;
+  font-size: 0.78rem; margin-top: 1px;
+}
+.record-actions {
+  display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end;
+}
+.btn-sm {
+  padding: 4px 14px; border-radius: 18px;
+  border: 2px solid var(--border); background: transparent;
+  font-family: 'Noto Sans SC', sans-serif; font-size: 0.68rem;
+  color: var(--emerald); cursor: pointer; transition: all 0.2s; font-weight: 600;
+}
+.btn-sm:hover { background: rgba(45,159,127,0.06); }
+.btn-sm.delete { border-color: #FFE0E0; color: var(--coral); }
+.btn-sm.delete:hover { background: #FFF0F0; }
+
+/* FAB */
+.fab {
+  position: fixed; bottom: 32px; right: 24px;
+  width: 58px; height: 58px; border-radius: 50%;
+  background: var(--gradient-g); color: #fff; border: none;
+  font-size: 1.8rem; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(45,159,127,0.4);
+  transition: transform 0.3s, box-shadow 0.3s;
+  z-index: 100; display: flex; align-items: center; justify-content: center;
+}
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 8px 32px rgba(45,159,127,0.5); }
+
+/* Modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(30,45,43,0.35);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  z-index: 200; align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #fff; border-radius: 26px 26px 0 0;
+  width: 100%; max-width: 720px; max-height: 92vh;
+  overflow-y: auto; padding: 26px 20px 36px;
+  animation: slideUp 0.35s cubic-bezier(.22,.68,0,1.1);
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal h2 {
+  font-family: 'Quicksand', sans-serif; font-weight: 700;
+  font-size: 1.1rem; text-align: center; margin-bottom: 20px; color: var(--text);
+}
+.form-section-title {
+  font-size: 0.72rem; font-weight: 700; color: var(--emerald);
+  margin: 16px 0 8px; padding-left: 4px;
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-group { display: flex; flex-direction: column; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label {
+  font-size: 0.68rem; color: var(--text-light); margin-bottom: 3px; font-weight: 500;
+}
+.form-group input {
+  padding: 10px 12px; border: 2px solid var(--border); border-radius: 12px;
+  font-family: 'Quicksand', sans-serif; font-size: 0.92rem; font-weight: 600;
+  background: #FAFCFB; color: var(--text); outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s; -webkit-appearance: none;
+}
+.form-group input:focus {
+  border-color: var(--emerald); box-shadow: 0 0 0 3px rgba(45,159,127,0.1);
+}
+.form-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn {
+  flex: 1; padding: 12px; border-radius: 14px; border: none;
+  font-family: 'Noto Sans SC', sans-serif; font-size: 0.85rem;
+  font-weight: 700; cursor: pointer; transition: all 0.3s;
+}
+.btn-primary {
+  background: var(--gradient-g); color: #fff;
+  box-shadow: 0 4px 16px rgba(45,159,127,0.25);
+}
+.btn-primary:hover { box-shadow: 0 6px 24px rgba(45,159,127,0.4); transform: translateY(-1px); }
+.btn-secondary { background: #F0F4F3; border: 2px solid var(--border); color: var(--text-light); }
+
+.toast {
+  position: fixed; top: 20px; left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: var(--gradient-g); padding: 10px 24px;
+  border-radius: 14px; font-size: 0.8rem; color: #fff; font-weight: 600;
+  box-shadow: 0 6px 24px rgba(45,159,127,0.3);
+  z-index: 300; transition: transform 0.4s cubic-bezier(.22,.68,0,1.1);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+.empty-state { text-align: center; padding: 50px 20px; color: var(--text-light); }
+.empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+@media (max-width: 480px) {
+  .header-emoji { font-size: 2.2rem; }
+  .header h1 { font-size: 1.3rem; }
+  .balance-hero .bv { font-size: 1.9rem; }
+  .summary-card .sc-value { font-size: 1.2rem; }
+  .record-grid { grid-template-columns: repeat(2, 1fr); }
+  .record-detail { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+  .fab { bottom: 24px; right: 18px; width: 52px; height: 52px; font-size: 1.5rem; }
+}
+.toolbar {
+  display: flex; justify-content: center; gap: 10px;
+  margin-bottom: 20px; flex-wrap: wrap;
+}
+.toolbar-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 14px;
+  border: 2px solid var(--border); background: var(--card);
+  font-family: 'Noto Sans SC', sans-serif; font-size: 0.72rem;
+  color: var(--emerald); cursor: pointer; font-weight: 600;
+  transition: all 0.3s; box-shadow: var(--shadow);
+}
+.toolbar-btn:hover { border-color: var(--emerald); background: rgba(45,159,127,0.06); }
+.toolbar-btn:active { transform: scale(0.95); }
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var INITIAL = [
+  {date:'2023-01',inc1:0,inc2:241400,incTTL:241400,mortgage:0,creditCard:0,bankCard:0,water:3.67,electric:228.09,gas:46.5,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:0,balance:241400},
+  {date:'2023-02',inc1:0,inc2:80000,incTTL:80000,mortgage:0,creditCard:0,bankCard:-10000,water:0,electric:177.48,gas:163.85,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-10000,balance:311400},
+  {date:'2023-03',inc1:44190,inc2:0,incTTL:44190,mortgage:-30000,creditCard:-10000,bankCard:0,water:159.52,electric:181.05,gas:105.4,internet:300,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-40000,balance:315590},
+  {date:'2023-04',inc1:32684,inc2:300000,incTTL:332684,mortgage:-30000,creditCard:-8690,bankCard:0,water:0,electric:183.18,gas:58.9,internet:297.91,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-38690,balance:609584},
+  {date:'2023-05',inc1:129393,inc2:0,incTTL:129393,mortgage:-30000,creditCard:-23425,bankCard:0,water:96.8,electric:218.69,gas:40.3,internet:98.26,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-53425,balance:685552},
+  {date:'2023-06',inc1:35000,inc2:0,incTTL:35000,mortgage:-30000,creditCard:-25711,bankCard:0,water:0,electric:332.03,gas:40.3,internet:0,car:4096,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-55711,balance:664841},
+  {date:'2023-07',inc1:58977,inc2:0,incTTL:58977,mortgage:-390000,creditCard:0,bankCard:0,water:75.5,electric:342.73,gas:40.3,internet:0,car:750,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-390000,balance:333818},
+  {date:'2023-08',inc1:100000,inc2:0,incTTL:100000,mortgage:-30000,creditCard:0,bankCard:0,water:0,electric:265.02,gas:34.1,internet:298.01,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:403818},
+  {date:'2023-09',inc1:32000,inc2:0,incTTL:32000,mortgage:-30000,creditCard:0,bankCard:-10000,water:66.98,electric:224.39,gas:34.1,internet:297.92,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-40000,balance:395818},
+  {date:'2023-10',inc1:0,inc2:0,incTTL:0,mortgage:-30000,creditCard:0,bankCard:0,water:0,electric:152.46,gas:24.8,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:365818},
+  {date:'2023-11',inc1:65000,inc2:0,incTTL:65000,mortgage:-30000,creditCard:0,bankCard:0,water:59.05,electric:131.25,gas:40.3,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:400818},
+  {date:'2023-12',inc1:0,inc2:0,incTTL:0,mortgage:-30000,creditCard:-10000,bankCard:0,water:0,electric:155.38,gas:49.6,internet:300,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-40000,balance:360818},
+  {date:'2024-01',inc1:89999,inc2:0,incTTL:89999,mortgage:0,creditCard:0,bankCard:0,water:66.98,electric:186.04,gas:71.3,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:0,balance:450817},
+  {date:'2024-02',inc1:200000,inc2:0,incTTL:200000,mortgage:-30000,creditCard:0,bankCard:0,water:0,electric:150.39,gas:68.2,internet:198,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:620817},
+  {date:'2024-03',inc1:20000,inc2:0,incTTL:20000,mortgage:-30000,creditCard:0,bankCard:0,water:66.98,electric:169.64,gas:58.9,internet:197.72,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:610817},
+  {date:'2024-04',inc1:30000,inc2:0,incTTL:30000,mortgage:-35000,creditCard:0,bankCard:0,water:0,electric:138.27,gas:51.15,internet:498,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-35000,balance:605817},
+  {date:'2024-05',inc1:60000,inc2:0,incTTL:60000,mortgage:-30000,creditCard:0,bankCard:0,water:63.31,electric:212.98,gas:57.97,internet:97.72,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-40000,balance:625817},
+  {date:'2024-06',inc1:32000,inc2:0,incTTL:32000,mortgage:-30000,creditCard:0,bankCard:-10000,water:0,electric:250.05,gas:44.33,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:627817},
+  {date:'2024-07',inc1:38000,inc2:0,incTTL:38000,mortgage:-180000,creditCard:0,bankCard:0,water:88.28,electric:284.98,gas:44.33,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-180000,balance:485817},
+  {date:'2024-08',inc1:50000,inc2:0,incTTL:50000,mortgage:-30000,creditCard:0,bankCard:0,water:0,electric:286.41,gas:37.51,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:505817},
+  {date:'2024-09',inc1:30000,inc2:0,incTTL:30000,mortgage:-30000,creditCard:0,bankCard:0,water:92.54,electric:248.63,gas:61.38,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:505817},
+  {date:'2024-10',inc1:30000,inc2:0,incTTL:30000,mortgage:-80000,creditCard:0,bankCard:0,water:0,electric:176.63,gas:51.15,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-80000,balance:455817},
+  {date:'2024-11',inc1:30000,inc2:0,incTTL:30000,mortgage:-30000,creditCard:0,bankCard:0,water:88.28,electric:0,gas:44.33,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:455817},
+  {date:'2024-12',inc1:50000,inc2:0,incTTL:50000,mortgage:-30000,creditCard:0,bankCard:0,water:0,electric:0,gas:57.97,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:475817},
+  {date:'2025-01',inc1:46000,inc2:240000,incTTL:286000,mortgage:0,creditCard:0,bankCard:0,water:79.76,electric:194.59,gas:85.25,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:0,balance:761817},
+  {date:'2025-02',inc1:0,inc2:200000,incTTL:200000,mortgage:0,creditCard:0,bankCard:0,water:0,electric:174.63,gas:109.12,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:0,balance:961817},
+  {date:'2025-03',inc1:0,inc2:0,incTTL:0,mortgage:-30000,creditCard:0,bankCard:0,water:92.54,electric:179.62,gas:75.02,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:931817},
+  {date:'2025-04',inc1:80000,inc2:0,incTTL:80000,mortgage:-130000,creditCard:0,bankCard:0,water:0,electric:161.8,gas:75.02,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-131000,balance:880817},
+  {date:'2025-05',inc1:100000,inc2:0,incTTL:100000,mortgage:-30000,creditCard:0,bankCard:-1000,water:88.28,electric:195.59,gas:40.92,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:950817},
+  {date:'2025-06',inc1:40000,inc2:0,incTTL:40000,mortgage:-30000,creditCard:0,bankCard:0,water:0,electric:250.77,gas:34.1,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:960817},
+  {date:'2025-07',inc1:30000,inc2:0,incTTL:30000,mortgage:-180000,creditCard:0,bankCard:0,water:75.5,electric:292.82,gas:30.69,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-180000,balance:810817},
+  {date:'2025-08',inc1:40000,inc2:0,incTTL:40000,mortgage:-30000,creditCard:0,bankCard:0,water:0,electric:323.48,gas:27.28,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-40000,balance:810817},
+  {date:'2025-09',inc1:30000,inc2:0,incTTL:30000,mortgage:-30000,creditCard:0,bankCard:-10000,water:84.02,electric:257.18,gas:34.1,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:810817},
+  {date:'2025-10',inc1:40000,inc2:0,incTTL:40000,mortgage:-130000,creditCard:0,bankCard:0,water:0,electric:214.41,gas:40.92,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-130000,balance:720817},
+  {date:'2025-11',inc1:40000,inc2:0,incTTL:40000,mortgage:-30000,creditCard:0,bankCard:0,water:92.54,electric:203.14,gas:57.97,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:730817},
+  {date:'2025-12',inc1:35000,inc2:0,incTTL:35000,mortgage:-30000,creditCard:0,bankCard:0,water:0,electric:199.58,gas:95.48,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-30000,balance:735817},
+  {date:'2026-01',inc1:26000,inc2:0,incTTL:26000,mortgage:0,creditCard:0,bankCard:0,water:126.03,electric:191.03,gas:71.61,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:0,balance:761817},
+  {date:'2026-02',inc1:80000,inc2:300000,incTTL:380000,mortgage:-25000,creditCard:0,bankCard:0,water:46.27,electric:197.44,gas:68.2,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:-25000,balance:1116817},
+  {date:'2026-03',inc1:20000,inc2:0,incTTL:20000,mortgage:0,creditCard:0,bankCard:0,water:71.24,electric:0,gas:51.15,internet:0,car:0,property:0,bankCard2:0,medical:0,parents:0,children:0,wechat:0,expTTL:0,balance:1136817}
+];
+
+var EXP_FIELDS = [
+  {key:'mortgage',label:'房贷'},{key:'creditCard',label:'信用卡'},{key:'bankCard',label:'银行卡'},
+  {key:'water',label:'水费'},{key:'electric',label:'电费'},{key:'gas',label:'燃气'},
+  {key:'internet',label:'网费/话费'},{key:'car',label:'车相关'},{key:'property',label:'物业费'},
+  {key:'medical',label:'医疗'},{key:'parents',label:'父母'},{key:'children',label:'子女'},
+  {key:'wechat',label:'微信/支付宝'}
+];
+
+/* ========== Firebase 配置 ========== */
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCw2LvvJP4ySN7exYJ5tVCbN8fwcOA7KSM",
+  authDomain: "tools-61215.firebaseapp.com",
+  databaseURL: "https://tools-61215-default-rtdb.firebaseio.com",
+  projectId: "tools-61215",
+  storageBucket: "tools-61215.firebasestorage.app",
+  messagingSenderId: "417996402549",
+  appId: "1:417996402549:web:3246d8bef7a67be39fed3c"
+};
+
+var firebaseApp = firebase.initializeApp(FIREBASE_CONFIG);
+var db = firebase.database();
+var dbRef = db.ref('balance_sheet');
+var cachedData = null;
+var firebaseReady = false;
+
+function getData(){
+  if(cachedData) return cachedData.slice();
+  // fallback to localStorage
+  try {
+    var s = localStorage.getItem('lf_balance_v1');
+    if(s) return JSON.parse(s);
+  } catch(e){}
+  return INITIAL.slice();
+}
+
+function saveData(data){
+  data.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  cachedData = data.slice();
+  // save to localStorage as offline backup
+  try { localStorage.setItem('lf_balance_v1', JSON.stringify(data)); } catch(e){}
+  // save to Firebase
+  dbRef.set(data).catch(function(err){ console.warn('Firebase write error:', err); });
+}
+
+// Real-time sync from Firebase
+dbRef.on('value', function(snapshot){
+  var val = snapshot.val();
+  if(val && Array.isArray(val)){
+    cachedData = val;
+    try { localStorage.setItem('lf_balance_v1', JSON.stringify(val)); } catch(e){}
+    firebaseReady = true;
+    render();
+  } else if(!firebaseReady){
+    // First time: upload initial/local data to Firebase
+    firebaseReady = true;
+    var localData = getData();
+    dbRef.set(localData);
+    cachedData = localData;
+    render();
+  }
+});
+
+var chart = null;
+var currentChart = 'balance';
+var editIndex = -1;
+
+function fmt(n){
+  if(n==null||n===0) return '-';
+  var abs = Math.abs(n);
+  if(abs>=10000) return (n<0?'-':'') + (abs/10000).toFixed(abs%10000===0?0:1) + 'w';
+  return n.toLocaleString();
+}
+function fmtFull(n){
+  if(n==null||n===0) return '-';
+  return n.toLocaleString();
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); },2000);
+}
+
+function renderHero(data){
+  if(!data.length) return '';
+  var last=data[data.length-1];
+  var prev=data.length>1?data[data.length-2]:null;
+  return '<div class="balance-hero">'
+    +'<div class="bl">💰 当前余额</div>'
+    +'<div class="bv">'+fmtFull(last.balance)+'</div>'
+    +'<div class="bu">CNY · '+last.date+'</div>'
+    +'</div>';
+}
+
+function renderSummaryRow(data){
+  if(!data.length) return '';
+  var last=data[data.length-1];
+  return '<div class="summary-row">'
+    +'<div class="summary-card income">'
+    +'<div class="sc-emoji">📈</div><div class="sc-label">本月收入</div>'
+    +'<div class="sc-value">'+fmtFull(last.incTTL)+'</div></div>'
+    +'<div class="summary-card expense">'
+    +'<div class="sc-emoji">📉</div><div class="sc-label">本月支出</div>'
+    +'<div class="sc-value">'+fmtFull(Math.abs(last.expTTL))+'</div></div>'
+    +'</div>';
+}
+
+function renderChart(){
+  if(typeof Chart==='undefined') return;
+  try{
+    var data=getData();
+    if(!data.length) return;
+    var el=document.getElementById('mainChart');
+    if(!el) return;
+    if(chart) chart.destroy();
+    var labels=data.map(function(d){ return d.date.substring(2); });
+    var ds=[];
+    if(currentChart==='balance'){
+      ds=[{label:'余额',data:data.map(function(d){return d.balance;}),
+        borderColor:'#2D9F7F',backgroundColor:'rgba(45,159,127,0.08)',
+        borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:'#2D9F7F',pointBorderWidth:2,tension:0.4,fill:true}];
+    } else if(currentChart==='income'){
+      ds=[{label:'收入',data:data.map(function(d){return d.incTTL;}),
+        borderColor:'#E8A838',backgroundColor:'rgba(232,168,56,0.1)',
+        borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:'#E8A838',pointBorderWidth:2,tension:0.4,fill:true}];
+    } else if(currentChart==='expense'){
+      ds=[{label:'支出',data:data.map(function(d){return Math.abs(d.expTTL);}),
+        borderColor:'#EF6B6B',backgroundColor:'rgba(239,107,107,0.1)',
+        borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:'#EF6B6B',pointBorderWidth:2,tension:0.4,fill:true}];
+    } else {
+      ds=[{label:'收入',data:data.map(function(d){return d.incTTL;}),borderColor:'#E8A838',backgroundColor:'transparent',borderWidth:2,pointRadius:2,tension:0.4,fill:false},
+          {label:'支出',data:data.map(function(d){return Math.abs(d.expTTL);}),borderColor:'#EF6B6B',backgroundColor:'transparent',borderWidth:2,pointRadius:2,tension:0.4,fill:false}];
+    }
+    chart=new Chart(el.getContext('2d'),{
+      type:'line', data:{labels:labels,datasets:ds},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:currentChart==='compare',labels:{font:{family:'Quicksand',size:11},usePointStyle:true}},
+          tooltip:{backgroundColor:'#fff',titleColor:'#1E2D2B',bodyColor:'#1E2D2B',borderColor:'#D6E4E0',borderWidth:2,padding:10,cornerRadius:10,
+            titleFont:{family:'Quicksand',size:11,weight:'600'},bodyFont:{family:'Quicksand',size:13,weight:'700'}}},
+        scales:{x:{grid:{display:false},ticks:{font:{family:'Quicksand',size:9,weight:'500'},color:'#7A8E8B',maxRotation:45}},
+          y:{grid:{color:'#EDF3F1'},ticks:{font:{family:'Quicksand',size:10,weight:'500'},color:'#7A8E8B',
+            callback:function(v){return v>=10000?(v/10000)+'w':v;}}}}
+      }
+    });
+  }catch(e){ console.warn(e); }
+}
+
+function renderRecords(data){
+  if(!data.length) return '<div class="empty-state"><div class="icon">📊</div><p>暂无记录，点击下方按钮添加</p></div>';
+  var html='';
+  var rev=data.slice().reverse();
+  rev.forEach(function(r,ri){
+    var idx=data.length-1-ri;
+    var net=r.incTTL+(r.expTTL);
+    var cls=net>=0?'pos':'neg';
+    html+='<div class="record-card '+cls+'">'
+      +'<div class="record-top">'
+      +'<span class="record-date">📅 '+r.date+'</span>'
+      +'<span class="record-balance">💰 '+fmtFull(r.balance)+'</span>'
+      +'</div>'
+      +'<div class="record-grid">'
+      +'<div class="record-item inc-item"><div class="rl">📈 收入</div><div class="rv">'+fmt(r.incTTL)+'</div></div>'
+      +'<div class="record-item exp-item"><div class="rl">📉 支出</div><div class="rv">'+fmt(Math.abs(r.expTTL))+'</div></div>'
+      +'<div class="record-item"><div class="rl">🏠 房贷</div><div class="rv">'+fmt(Math.abs(r.mortgage))+'</div></div>'
+      +'</div>'
+      +'<div class="record-detail-toggle"><button onclick="toggleDetail('+idx+')">📋 查看明细 ▾</button></div>'
+      +'<div class="record-detail" id="detail-'+idx+'">'
+      +'<div class="rd-item"><div class="rdl">💧 水费</div><div class="rdv">'+fmtFull(r.water)+'</div></div>'
+      +'<div class="rd-item"><div class="rdl">⚡ 电费</div><div class="rdv">'+fmtFull(r.electric)+'</div></div>'
+      +'<div class="rd-item"><div class="rdl">🔥 燃气</div><div class="rdv">'+fmtFull(r.gas)+'</div></div>'
+      +'<div class="rd-item"><div class="rdl">💳 信用卡</div><div class="rdv">'+fmt(Math.abs(r.creditCard))+'</div></div>'
+      +'<div class="rd-item"><div class="rdl">🏦 银行卡</div><div class="rdv">'+fmt(Math.abs(r.bankCard))+'</div></div>'
+      +'<div class="rd-item"><div class="rdl">📱 网费/话费</div><div class="rdv">'+fmtFull(r.internet)+'</div></div>'
+      +'<div class="rd-item"><div class="rdl">🚗 车相关</div><div class="rdv">'+fmtFull(r.car)+'</div></div>'
+      +'<div class="rd-item"><div class="rdl">🏢 物业</div><div class="rdv">'+fmtFull(r.property)+'</div></div>'
+      +'<div class="rd-item"><div class="rdl">🏥 医疗</div><div class="rdv">'+fmtFull(r.medical)+'</div></div>'
+      +'</div>'
+      +'<div class="record-actions">'
+      +'<button class="btn-sm" onclick="openEdit('+idx+')">✏️ 编辑</button>'
+      +'<button class="btn-sm delete" onclick="deleteRecord('+idx+')">🗑️ 删除</button>'
+      +'</div></div>';
+  });
+  return html;
+}
+
+function toggleDetail(idx){
+  var el=document.getElementById('detail-'+idx);
+  if(el) el.classList.toggle('open');
+}
+
+function render(){
+  var data=getData();
+  var tabs=[
+    {key:'balance',label:'💰 余额'},{key:'income',label:'📈 收入'},
+    {key:'expense',label:'📉 支出'},{key:'compare',label:'📊 对比'}
+  ];
+  var chartTabs=tabs.map(function(t){
+    return '<button class="chart-tab '+(currentChart===t.key?'active':'')+'" onclick="switchChart(\''+t.key+'\')">'+t.label+'</button>';
+  }).join('');
+
+  document.getElementById('app').innerHTML=''
+    +'<div class="header">'
+    +'<div class="header-emoji">🏦</div>'
+    +'<h1>L&F Balance Sheet</h1>'
+    +'<p>家庭收支记录 · 财务一目了然</p>'
+    +'</div>'
+    +'<div class="container">'
+    +renderHero(data)
+    +renderSummaryRow(data)
+    +'<div class="toolbar"><button class="toolbar-btn" onclick="document.getElementById(\'importFile\').click()">📥 导入 Excel</button><button class="toolbar-btn" onclick="exportExcel()">📤 导出 Excel</button></div>'
+    +'<div class="chart-section">'
+    +'<h2>📊 趋势分析</h2>'
+    +'<div class="chart-tabs">'+chartTabs+'</div>'
+    +'<div class="chart-container"><canvas id="mainChart"></canvas></div>'
+    +'</div>'
+    +'<div class="section-header">📋 月度记录</div>'
+    +renderRecords(data)
+    +'</div>'
+    +'<button class="fab" onclick="openAdd()">+</button>'
+    +'<input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImport(event)">'
+    +'<div class="modal-overlay" id="modal"><div class="modal">'
+    +'<h2 id="modalTitle">✨ 添加记录</h2>'
+    +'<div class="form-grid">'
+    +'<div class="form-group full"><label>📅 月份 (如 2026-04)</label><input type="month" id="f_date"></div>'
+    +'</div>'
+    +'<div class="form-section-title">📈 收入</div>'
+    +'<div class="form-grid">'
+    +'<div class="form-group"><label>收入1</label><input type="number" id="f_inc1"></div>'
+    +'<div class="form-group"><label>收入2</label><input type="number" id="f_inc2"></div>'
+    +'</div>'
+    +'<div class="form-section-title">📉 支出</div>'
+    +'<div class="form-grid">'
+    +'<div class="form-group"><label>🏠 房贷</label><input type="number" id="f_mortgage"></div>'
+    +'<div class="form-group"><label>💳 信用卡</label><input type="number" id="f_creditCard"></div>'
+    +'<div class="form-group"><label>🏦 银行卡</label><input type="number" id="f_bankCard"></div>'
+    +'<div class="form-group"><label>💧 水费</label><input type="number" step="0.01" id="f_water"></div>'
+    +'<div class="form-group"><label>⚡ 电费</label><input type="number" step="0.01" id="f_electric"></div>'
+    +'<div class="form-group"><label>🔥 燃气</label><input type="number" step="0.01" id="f_gas"></div>'
+    +'<div class="form-group"><label>📱 网费/话费</label><input type="number" step="0.01" id="f_internet"></div>'
+    +'<div class="form-group"><label>🚗 车相关</label><input type="number" id="f_car"></div>'
+    +'<div class="form-group"><label>🏢 物业费</label><input type="number" id="f_property"></div>'
+    +'<div class="form-group"><label>🏥 医疗</label><input type="number" id="f_medical"></div>'
+    +'<div class="form-group"><label>👨‍👩‍👦 父母</label><input type="number" id="f_parents"></div>'
+    +'<div class="form-group"><label>👶 子女</label><input type="number" id="f_children"></div>'
+    +'<div class="form-group"><label>📱 微信/支付宝</label><input type="number" id="f_wechat"></div>'
+    +'</div>'
+    +'<div class="form-actions">'
+    +'<button class="btn btn-secondary" onclick="closeModal()">取消</button>'
+    +'<button class="btn btn-primary" onclick="saveRecord()">保存 ✨</button>'
+    +'</div>'
+    +'</div></div>'
+    +'<div class="toast" id="toast"></div>';
+
+  renderChart();
+}
+
+function switchChart(k){ currentChart=k; render(); }
+
+function gv(id){ return parseFloat(document.getElementById(id).value)||0; }
+function sv(id,v){ var el=document.getElementById(id); if(el&&v) el.value=v; }
+
+function openAdd(){
+  editIndex=-1; render();
+  document.getElementById('modalTitle').innerHTML='✨ 添加记录';
+  var now=new Date(); sv('f_date',now.getFullYear()+'-'+(now.getMonth()+1<10?'0':'')+(now.getMonth()+1));
+  document.getElementById('modal').classList.add('open');
+}
+
+function openEdit(idx){
+  editIndex=idx; var r=getData()[idx]; render();
+  document.getElementById('modalTitle').innerHTML='✏️ 编辑记录';
+  sv('f_date',r.date); sv('f_inc1',r.inc1||''); sv('f_inc2',r.inc2||'');
+  sv('f_mortgage',r.mortgage?Math.abs(r.mortgage):'');
+  sv('f_creditCard',r.creditCard?Math.abs(r.creditCard):'');
+  sv('f_bankCard',r.bankCard?Math.abs(r.bankCard):'');
+  sv('f_water',r.water||''); sv('f_electric',r.electric||''); sv('f_gas',r.gas||'');
+  sv('f_internet',r.internet||''); sv('f_car',r.car||''); sv('f_property',r.property||'');
+  sv('f_medical',r.medical||''); sv('f_parents',r.parents||''); sv('f_children',r.children||'');
+  sv('f_wechat',r.wechat||'');
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(){ document.getElementById('modal').classList.remove('open'); editIndex=-1; }
+
+function saveRecord(){
+  var date=document.getElementById('f_date').value;
+  if(!date){ showToast('请选择月份'); return; }
+  var inc1=gv('f_inc1'), inc2=gv('f_inc2');
+  var mortgage=gv('f_mortgage'), creditCard=gv('f_creditCard'), bankCard=gv('f_bankCard');
+  var water=gv('f_water'), electric=gv('f_electric'), gas=gv('f_gas');
+  var internet=gv('f_internet'), car=gv('f_car'), property=gv('f_property');
+  var medical=gv('f_medical'), parents=gv('f_parents'), children=gv('f_children'), wechat=gv('f_wechat');
+  var incTTL=inc1+inc2;
+  var expTTL=-(mortgage+creditCard+bankCard);
+
+  var data=getData();
+  // calc balance from previous
+  var r={date:date,inc1:inc1,inc2:inc2,incTTL:incTTL,
+    mortgage:-mortgage,creditCard:-creditCard,bankCard:-bankCard,
+    water:water,electric:electric,gas:gas,internet:internet,car:car,
+    property:property,bankCard2:0,medical:medical,parents:parents,children:children,wechat:wechat,
+    expTTL:expTTL,balance:0};
+
+  if(editIndex>=0){ data[editIndex]=r; } else { data.push(r); }
+  data.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  // recalc balances
+  for(var i=0;i<data.length;i++){
+    var prev=i>0?data[i-1].balance:0;
+    data[i].balance=prev+data[i].incTTL+data[i].expTTL;
+  }
+  saveData(data);
+  closeModal();
+  showToast(editIndex>=0?'已更新 ✨':'已添加 🎉');
+  render();
+}
+
+function deleteRecord(idx){
+  if(!confirm('确认删除这条记录吗？')) return;
+  var data=getData(); data.splice(idx,1);
+  // recalc
+  for(var i=0;i<data.length;i++){
+    var prev=i>0?data[i-1].balance:0;
+    data[i].balance=prev+data[i].incTTL+data[i].expTTL;
+  }
+  saveData(data); showToast('已删除 🗑️'); render();
+}
+
+function handleImport(event){
+  var file = event.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      var wb = XLSX.read(e.target.result, {type:'array', cellDates:true});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:0});
+      var imported = [];
+      for(var r=1; r<rows.length; r++){
+        var row = rows[r];
+        var dateVal = row[0];
+        if(!dateVal) continue;
+        var dateStr = '';
+        if(dateVal instanceof Date){
+          dateStr = dateVal.getFullYear()+'-'+String(dateVal.getMonth()+1).padStart(2,'0');
+        } else {
+          dateStr = String(dateVal).substring(0,7);
+        }
+        if(!/^\d{4}-\d{2}$/.test(dateStr)) continue;
+        var inc1=parseFloat(row[1])||0, inc2=parseFloat(row[2])||0;
+        var incTTL=inc1+inc2;
+        var mortgage=parseFloat(row[4])||0, creditCard=parseFloat(row[5])||0, bankCard=parseFloat(row[6])||0;
+        var water=parseFloat(row[7])||0, electric=parseFloat(row[8])||0, gas=parseFloat(row[9])||0;
+        var internet=parseFloat(row[10])||0, car=parseFloat(row[11])||0, property=parseFloat(row[12])||0;
+        var bankCard2=parseFloat(row[13])||0, medical=parseFloat(row[14])||0;
+        var parents=parseFloat(row[15])||0, children=parseFloat(row[16])||0, wechat=parseFloat(row[17])||0;
+        var expTTL=-(Math.abs(mortgage)+Math.abs(creditCard)+Math.abs(bankCard));
+        imported.push({date:dateStr,inc1:inc1,inc2:inc2,incTTL:incTTL,
+          mortgage:-Math.abs(mortgage),creditCard:-Math.abs(creditCard),bankCard:-Math.abs(bankCard),
+          water:water,electric:electric,gas:gas,internet:internet,car:car,
+          property:property,bankCard2:bankCard2,medical:medical,parents:parents,
+          children:children,wechat:wechat,expTTL:expTTL,balance:0});
+      }
+      if(!imported.length){ alert('未找到有效数据'); return; }
+      imported.sort(function(a,b){ return a.date.localeCompare(b.date); });
+      for(var i=0;i<imported.length;i++){
+        var prev=i>0?imported[i-1].balance:0;
+        imported[i].balance=prev+imported[i].incTTL+imported[i].expTTL;
+      }
+      if(confirm('找到 '+imported.length+' 条记录，替换当前所有数据？')){
+        saveData(imported);
+        showToast('导入成功 '+imported.length+' 条');
+        render();
+      }
+    } catch(err){ alert('导入失败: '+err.message); }
+    event.target.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function exportExcel(){
+  var data=getData();
+  if(!data.length){ alert('没有数据'); return; }
+  data.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  var headers=['日期','收入1','收入2','收入合计','房贷','信用卡','银行卡',
+    '水费','电费','燃气','网费/话费','车相关','物业费','银行卡2','医疗','父母','子女','微信/支付宝','支出合计','余额'];
+  var rows=[headers];
+  data.forEach(function(r){
+    rows.push([r.date,r.inc1,r.inc2,r.incTTL,Math.abs(r.mortgage),Math.abs(r.creditCard),Math.abs(r.bankCard),
+      r.water,r.electric,r.gas,r.internet,r.car,r.property,r.bankCard2,r.medical,r.parents,r.children,r.wechat,
+      Math.abs(r.expTTL),r.balance]);
+  });
+  var ws=XLSX.utils.aoa_to_sheet(rows);
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Balance');
+  XLSX.writeFile(wb,'LF_Balance_'+new Date().toISOString().slice(0,10)+'.xlsx');
+}
+
+document.addEventListener('click',function(e){
+  if(e.target===document.getElementById('modal')) closeModal();
+});
+
+render();
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
