@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Noto Sans SC', 'Quicksand', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #F0F4F3 0%, #FFF6F0 100%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.container {
+  max-width: 400px; width: 100%; text-align: center;
+}
+h1 {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.8rem; font-weight: 700;
+  margin-bottom: 8px; color: #2D3436;
+}
+p { color: #7A8E8B; font-size: 0.85rem; margin-bottom: 36px; }
+.card {
+  display: block; text-decoration: none;
+  background: #fff; border-radius: 20px;
+  padding: 28px 24px; margin-bottom: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  border: 2px solid transparent;
+  transition: all 0.3s;
+}
+.card:active { transform: scale(0.97); }
+.card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+.card.finance { border-color: rgba(45,159,127,0.15); }
+.card.finance:hover { border-color: rgba(45,159,127,0.4); }
+.card.workout { border-color: rgba(255,107,157,0.15); }
+.card.workout:hover { border-color: rgba(255,107,157,0.4); }
+.card .emoji { font-size: 2.4rem; margin-bottom: 10px; }
+.card .title {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.2rem; font-weight: 700; margin-bottom: 4px;
+}
+.card.finance .title { color: #2D9F7F; }
+.card.workout .title { color: #FF6B9D; }
+.card .desc { font-size: 0.75rem; color: #A0A0A0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Family Tools</h1>
+  <p>choose your tool</p>
+  <a class="card finance" href="balance.html">
+    <div class="emoji">🏦</div>
+    <div class="title">L&F Balance Sheet</div>
+    <div class="desc">家庭收支记录 · 财务一目了然</div>
+  </a>
+  <a class="card workout" href="workout.html">
+    <div class="emoji">🌟</div>
+    <div class="title">My Body Log</div>
+    <div class="desc">记录每一次变化 · 遇见更好的自己</div>
+  </a>
+</div>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
