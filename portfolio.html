@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>持仓体检 · 五只核心白马</title>
+<style>
+:root{
+  --bg:#f4f5f7;
+  --card:#ffffff;
+  --line:#e5e8ec;
+  --line2:#eef1f4;
+  --text:#1e252d;
+  --sub:#6d7783;
+  --faint:#98a1ac;
+  --up:#c4372c;
+  --down:#1a8a58;
+  --upbg:#fbf0ef;
+  --downbg:#eef7f2;
+  --accent:#2c4f6e;
+  --accent2:#4a7093;
+  --warn:#b5894a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:14px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px 80px}
+
+/* ---------- header ---------- */
+.top{background:var(--card);border-bottom:1px solid var(--line);padding:26px 0 22px;margin-bottom:26px}
+.top .wrap{padding-bottom:0}
+.kicker{font-size:12px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-bottom:6px}
+h1{font-size:25px;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+.meta{margin-top:10px;font-size:12.5px;color:var(--sub);display:flex;flex-wrap:wrap;gap:6px 18px}
+.meta b{font-weight:500;color:var(--text)}
+
+/* ---------- generic ---------- */
+section{margin-bottom:34px}
+.shead{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.shead h2{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.shead .sub{font-size:12.5px;color:var(--faint)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.note{font-size:12px;color:var(--faint);line-height:1.6;margin-top:10px}
+.up{color:var(--up)}
+.down{color:var(--down)}
+.mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+/* ---------- hero ---------- */
+.hero{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:22px 24px}
+.hero h3{font-size:18px;font-weight:600;line-height:1.5;margin-bottom:14px}
+.hero h3 em{font-style:normal;color:var(--up);border-bottom:2px solid var(--upbg);padding-bottom:1px}
+.hero p{font-size:13.5px;color:#3a444f;margin-bottom:9px}
+.hero p:last-child{margin-bottom:0}
+.hero strong{font-weight:600}
+
+/* ---------- tiers ---------- */
+.tier{border-radius:10px;padding:16px 18px;border:1px solid var(--line);background:var(--card)}
+.tier .tl{font-size:12px;letter-spacing:.08em;color:var(--faint);margin-bottom:4px}
+.tier .tt{font-size:15px;font-weight:600;margin-bottom:10px}
+.tier ul{list-style:none;font-size:12.5px;color:#48525e;line-height:1.7}
+.tier li{padding-left:12px;position:relative}
+.tier li::before{content:"";position:absolute;left:0;top:9px;width:4px;height:4px;border-radius:50%;background:var(--faint)}
+.tier.t1{border-top:2px solid var(--down)}
+.tier.t2{border-top:2px solid var(--accent2)}
+.tier.t3{border-top:2px solid var(--up)}
+
+/* ---------- table ---------- */
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:12.5px;white-space:nowrap}
+th,td{padding:9px 11px;text-align:right;border-bottom:1px solid var(--line2)}
+th{background:#fafbfc;font-weight:500;color:var(--sub);font-size:11.5px;letter-spacing:.02em;position:sticky;top:0}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--card);z-index:2}
+th:first-child{background:#fafbfc;z-index:3}
+tbody tr:hover td{background:#fbfcfd}
+tbody tr:hover td:first-child{background:#fbfcfd}
+tbody tr:last-child td{border-bottom:none}
+.nm{font-weight:600}
+.cd{font-size:10.5px;color:var(--faint);font-weight:400;margin-left:5px}
+td input.w{width:52px;padding:3px 5px;text-align:right;border:1px solid var(--line);border-radius:5px;font:inherit;font-size:12px;background:#fcfdfe}
+td input.w:focus{outline:none;border-color:var(--accent2);background:#fff}
+.badge{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:500;line-height:1.6}
+.b-keep{background:#eef2f6;color:#2c4f6e}
+.b-watch{background:#f8f4ec;color:#a07b3c}
+.b-cut{background:#faf1ea;color:#b5622e}
+.b-out{background:#fbf0ef;color:var(--up)}
+
+/* ---------- charts ---------- */
+.chartbox{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.chartbox h4{font-size:13.5px;font-weight:600;margin-bottom:3px}
+.chartbox .cap{font-size:12px;color:var(--faint);margin-bottom:14px;line-height:1.55}
+svg{display:block;width:100%;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;font-size:12px;color:var(--sub)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+
+/* ---------- stock cards ---------- */
+.scard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-bottom:14px}
+.scard .hd{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--line2)}
+.scard .hd .l{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.scard .hd h3{font-size:16px;font-weight:600}
+.scard .hd .code{font-size:11.5px;color:var(--faint)}
+.scard .hd .px{font-size:14px;font-weight:600}
+.scard .txt{font-size:13px;color:#3d4752;line-height:1.75}
+.scard .txt b{font-weight:600;color:var(--text)}
+.scard .txt .neg{color:var(--up);font-weight:600}
+.scard .txt .pos{color:var(--down);font-weight:600}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.kv div{background:#fafbfc;border:1px solid var(--line2);border-radius:7px;padding:8px 10px}
+.kv .k{font-size:11px;color:var(--faint);margin-bottom:2px}
+.kv .v{font-size:13px;font-weight:600}
+.del{font-size:11.5px;color:var(--faint);background:none;border:1px solid var(--line);border-radius:5px;padding:2px 8px;cursor:pointer}
+.del:hover{color:var(--up);border-color:#e6cfcd}
+
+/* ---------- heatmap ---------- */
+.hm{border-collapse:separate;border-spacing:3px;width:100%;font-size:12px;white-space:nowrap}
+.hm th{background:none;color:var(--sub);font-size:11.5px;font-weight:500;padding:4px 6px;position:static}
+.hm td{text-align:center;border-radius:5px;padding:7px 6px;font-weight:600;border:none;color:#fff}
+.hm td:first-child{text-align:left;color:var(--text);font-weight:600;background:none;position:static}
+
+/* ---------- priority ---------- */
+.pri{counter-reset:p;list-style:none}
+.pri li{counter-increment:p;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:14px 18px 14px 52px;position:relative;margin-bottom:10px;font-size:13px;color:#3d4752;line-height:1.7}
+.pri li::before{content:counter(p);position:absolute;left:16px;top:14px;width:22px;height:22px;border-radius:50%;background:#f0f3f6;color:var(--accent);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;line-height:1}
+.pri li b{color:var(--text)}
+
+/* ---------- buttons ---------- */
+.btn{font:inherit;font-size:12.5px;padding:7px 15px;border-radius:7px;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;transition:.15s}
+.btn:hover{border-color:var(--accent2);color:var(--accent)}
+.btn.pri-btn{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.pri-btn:hover{background:#23415c;color:#fff}
+.bar-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- modal ---------- */
+.mask{position:fixed;inset:0;background:rgba(24,32,40,.42);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:60;overflow-y:auto}
+.mask.on{display:flex}
+.modal{background:var(--card);border-radius:12px;width:100%;max-width:720px;box-shadow:0 18px 50px rgba(20,30,40,.22)}
+.modal .mh{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--line)}
+.modal .mh h3{font-size:16px;font-weight:600}
+.modal .mb{padding:20px 22px}
+.modal .mf{display:flex;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1px solid var(--line)}
+.fgroup{margin-bottom:16px}
+.fgroup .fg{font-size:11.5px;letter-spacing:.08em;color:var(--faint);margin-bottom:8px}
+.frow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.frow.c3{grid-template-columns:repeat(3,1fr)}
+label.f{display:block}
+label.f span{display:block;font-size:11.5px;color:var(--sub);margin-bottom:3px}
+label.f input,label.f select{width:100%;padding:6px 9px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:12.5px;background:#fcfdfe}
+label.f input:focus,label.f select:focus{outline:none;border-color:var(--accent2);background:#fff}
+.x{background:none;border:none;font-size:20px;color:var(--faint);cursor:pointer;line-height:1;padding:0 4px}
+.x:hover{color:var(--text)}
+.toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(14px);background:#1e252d;color:#fff;font-size:12.5px;padding:9px 18px;border-radius:7px;opacity:0;pointer-events:none;transition:.22s;z-index:80}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- footer ---------- */
+.foot{font-size:11.8px;color:var(--faint);line-height:1.8;border-top:1px solid var(--line);padding-top:18px}
+.foot b{color:var(--sub);font-weight:500}
+.disc{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--warn);border-radius:9px;padding:15px 20px;font-size:12.3px;color:#4a5460;line-height:1.8}
+
+/* ---------- 筛选器 ---------- */
+.filters{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:14px}
+.filters label span{display:block;font-size:11.5px;color:var(--sub);margin-bottom:3px}
+.filters input{width:100%;padding:6px 9px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:12.5px;background:#fcfdfe}
+.filters input:focus{outline:none;border-color:var(--accent2);background:#fff}
+.togs{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line2)}
+.togs label{display:flex;align-items:center;gap:6px;font-size:12.5px;color:#48525e;cursor:pointer}
+.togs input{accent-color:#2c4f6e}
+.chip{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10.5px;background:#faf1ea;color:#b5622e;margin:1px 3px 1px 0}
+.gap{border-radius:10px;padding:15px 18px;border:1px solid var(--line);background:var(--card);border-top:2px solid var(--accent2)}
+.gap .gt{font-size:13.5px;font-weight:600;margin-bottom:6px}
+.gap .gd{font-size:12.5px;color:#48525e;line-height:1.7}
+tbody tr.dim{opacity:.5}
+tbody tr.dim:hover{opacity:.85}
+tbody tr.dim .nm{color:#6d7783}
+/* 买卖参考价 · 价位条 */
+.lvstrip{margin-top:14px;padding:13px 15px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}
+.lvhd{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#39434e;margin-bottom:16px;flex-wrap:wrap}
+.lvbar{position:relative;height:5px;border-radius:3px;background:#e9edf1;margin-bottom:18px}
+.lvmk{position:absolute;top:50%;transform:translate(-50%,-50%);width:2px;height:13px;border-radius:1px}
+.lvmk.now{width:3px;height:20px;background:#1e252d}
+.lvmk.buy{background:#2c4f6e}
+.lvmk.sell{background:#b5622e}
+.lvmk.stop{background:#8a5a5a;opacity:.7}
+.lvrow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.lvc .k{font-size:10.5px;color:var(--faint);margin-bottom:3px}
+.lvc .v{font-size:13px;font-weight:600;line-height:1.2}
+.lvc .v .d{font-size:10.5px;font-weight:400;opacity:.75;margin-left:3px}
+
+@media (max-width:900px){
+  .grid2,.grid3,.grid5,.filters{grid-template-columns:1fr}
+  .kv,.frow,.frow.c3{grid-template-columns:repeat(2,1fr)}
+  h1{font-size:21px}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap" style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap">
+    <div>
+      <div class="kicker">Portfolio Health Check</div>
+      <h1>持仓体检 · 五只核心白马</h1>
+      <div class="meta">
+        <span>数据时点 <b>2026-09-14 收盘</b></span>
+        <span>标的 <b id="cntTxt">5 只</b></span>
+        <span>口径 <b>行情 / 估值分位 / 年报财务 / 主力资金 / 技术指标 / 150日K线技术位</b></span>
+      </div>
+    </div>
+    <div class="bar-actions">
+      <button class="btn pri-btn" onclick="openModal()">+ 添加标的</button>
+      <button class="btn" onclick="resetAll()">恢复初始五只</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ 结论 ============ -->
+  <section>
+    <div class="hero">
+      <h3>最该砍的是 <em>比亚迪</em>；同时 <em>立讯精密</em> 已到该减仓止盈的位置。</h3>
+      <p><strong>比亚迪是五只里唯一「基本面、杠杆、技术」三项同时垫底的</strong>：2025 年归母净利同比 <span class="up">−19.0%</span>，2026 年中报净利率进一步压到 <strong>3.58%</strong>；资产负债率 <strong>70.7%</strong>、流动比率 <strong>0.87</strong>（五只里唯一低于 1，短期偿债最紧）；20 日主力净流出 23.4 亿，股价站在 20 日线下方。逻辑和价格双弱，是组合里机会成本最高的一只。</p>
+      <p><strong>立讯精密不差，但贵在五只里最贵、且资金在跑</strong>：净利同比 <span class="down">+24.2%</span>、ROE 21.1% 都不错，但 PE 45.6% 分位、PB 34.0% 分位是五只最高，代工模式下毛利率只有 <strong>11.9%</strong>、负债率 66.1%。今日单日 <span class="down">−4.59%</span> 跌破布林下轨，当日主力净流出 <strong>10.5 亿</strong>（占流通盘 0.27%，五只最急）。宜设止盈纪律，不宜在高位加仓。</p>
+      <p><strong>宁德时代与贵州茅台是真正该留的两只</strong>：宁德 PE 仅 <strong>17.99 倍</strong>、落在 5 年 <strong>10.9% 分位</strong>，同时归母净利 <span class="down">+42.3%</span>、ROE 24.9%，是「高增长 + 低估值」的唯一组合；茅台 ROE <strong>32.5%</strong>、毛利率 91.2%、股息率 <strong>4.07%</strong>、负债率仅 16.4%，估值砸到 5 年 5.4% 分位，是组合里唯一的低波压舱石。</p>
+      <p><strong>恒瑞医药是「便宜但资金最不认」的那只</strong>：PB 落在 5 年 <strong>0.0% 分位</strong>（历史极值底）、净利 <span class="down">+21.7%</span>、负债率仅 11.6%，三项都干净；但近一月 <span class="up">−19.75%</span> 领跌、20 日主力净流出 <strong>55.2 亿</strong>（五只最多）。价值与资金背离，先观察、等资金转向，不要急着加。</p>
+      <p class="note" style="margin-top:12px">以上是<strong>纯标的优劣排序</strong>，默认按等权（每只 20%）衡量。真实结论会随你的仓位权重变化——表格里的「仓位」列可以改，改完整页的集中度、组合杠杆和综合分都会跟着重算。</p>
+    </div>
+  </section>
+
+  <!-- ============ 分层 ============ -->
+  <section>
+    <div class="shead"><h2>组合分层：谁是核心，谁是拖累</h2><span class="sub">按综合分动态分层</span></div>
+    <div class="grid3" id="tiers"></div>
+  </section>
+
+  <!-- ============ 总览表 ============ -->
+  <section>
+    <div class="shead"><h2>五只总览（一表看全）</h2><span class="sub">涨红跌绿 · 单位：元 / % / 亿元</span></div>
+    <div class="tblwrap"><table id="ovTbl"></table></div>
+    <div class="note">近 1 月 = 2026-08-11 至 2026-09-14 区间涨跌幅；主力资金为 20 日累计净流入（亿元），负值为净流出。估值分位为 5 年历史分位。财务为 2025 年报（比亚迪负债率同口径 2025 年报 70.7%，2026 中报为 70.96%）。「仓位」可编辑，用于下方组合测算。「买入参考价 / 卖出参考价」为模型推导值，公式与修正系数见下方「买卖参考价」板块，<b>非投资建议</b>。</div>
+  </section>
+
+  <!-- ============ 图表 ============ -->
+  <section>
+    <div class="shead"><h2>性价比：增长 vs 估值位置</h2><span class="sub">横轴=归母净利同比 · 纵轴=PE 五年分位</span></div>
+    <div class="chartbox">
+      <div class="cap">右下角最香（高增长 + 低估），左上角最贵（负增长 + 高估）。宁德、恒瑞落在右下；比亚迪独自偏左；立讯在纵轴上位置最高。</div>
+      <div id="scatter"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="grid2">
+      <div class="chartbox">
+        <h4>近 20 日主力资金净流入</h4>
+        <div class="cap">红色为净流入、绿色为净流出（亿元）。五只 20 日累计全部为净流出，恒瑞流出最多。</div>
+        <div id="flowChart"></div>
+      </div>
+      <div class="chartbox">
+        <h4>今日涨跌幅</h4>
+        <div class="cap">单位 %。立讯今日单独大跌，其余四只小幅收涨。</div>
+        <div id="chgChart"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>五维量化评分</h2><span class="sub">估值 / 质量 / 成长 / 资金 / 技术（0–100）</span></div>
+    <div class="chartbox">
+      <div class="cap">统一口径的横向比较分，绿色越深代表该维度越强。<b>注意跨行业不完全可比</b>：制造业天然毛利率低、负债率高，宁德、立讯的「质量分」会被系统性压低，不应单独解读。</div>
+      <div id="heat"></div>
+      <div id="scoreBar" style="margin-top:22px"></div>
+    </div>
+  </section>
+
+  <!-- ============ 逐只体检 ============ -->
+  <section>
+    <div class="shead"><h2>逐只体检</h2><span class="sub">估值贵不贵 · 基本面质量 · 主力资金 · 技术位置 → 保留 / 减仓判断</span></div>
+    <div id="cards"></div>
+  </section>
+
+  <!-- ============ 买卖参考价 ============ -->
+  <section>
+    <div class="shead"><h2>买卖参考价 · 模型推导</h2><span class="sub" id="lvSub">按最近支撑 / 最近压力 + 综合分修正</span></div>
+
+    <div class="grid3" id="lvHow" style="margin-bottom:16px"></div>
+
+    <div class="chartbox" style="margin-bottom:16px">
+      <h4>各标的参考价位</h4>
+      <div class="cap" id="lvCap"></div>
+      <div class="tblwrap" style="margin-top:4px"><table id="lvTbl"></table></div>
+      <div class="note">「距买入 / 距卖出」= 参考价相对现价的偏离。买入价已设为不超过现价、卖出价不低于现价，
+        因此 <b>0.00% 表示现价恰好落在该参考位上</b>，不是数据缺失。带 <span class="chip">粗估</span> 的行没有K线数据，是用你录入的「现价相对 MA20」反推的。</div>
+    </div>
+
+    <div class="chartbox">
+      <h4>怎么用这两个价</h4>
+      <div id="lvComment" style="font-size:13px;color:#3d4752;line-height:1.8"></div>
+    </div>
+
+    <div class="disc" style="margin-top:16px">
+      <b>请先看清这三点：</b><br>
+      一、<b>这不是买卖指令，也不是目标价。</b>它是由「150 日前复权日K计算出的最近支撑 / 最近压力」再叠加本页综合分修正得到的<b>机械推导值</b>，
+        公式在下方完整公开，你可以自己复核或改掉。<br>
+      二、<b>技术支撑位会被跌破，压力位也会被突破。</b>任何价位都只是一条参考线，不构成价格见底或见顶的判断。突发业绩、政策、诉讼、板块系统性下跌都能瞬间让这些位置失效。<br>
+      三、<b>你还要考虑自己的成本价、持有期限和能承受的回撤。</b>同一只股票，短线交易者和长线持有者该用的价位完全不同——模型不知道这些，只有你知道。
+    </div>
+  </section>
+
+  <!-- ============ 组合视角 ============ -->
+  <section>
+    <div class="shead"><h2>组合视角：不只是五只散票</h2><span class="sub">按当前仓位权重测算</span></div>
+    <div class="grid2" style="margin-bottom:16px">
+      <div class="chartbox">
+        <h4>行业分布与集中度</h4>
+        <div class="cap" id="indCap"></div>
+        <div id="indChart"></div>
+      </div>
+      <div class="chartbox">
+        <h4>资产负债率（财务杠杆）</h4>
+        <div class="cap" id="levCap"></div>
+        <div id="levChart"></div>
+      </div>
+    </div>
+    <div class="chartbox" style="margin-bottom:16px">
+      <h4>近一月日收益相关性矩阵</h4>
+      <div class="cap">基于 2026-08-11 至 2026-09-14 共 24 个交易日的日涨跌幅计算（样本较短，仅作参考）。数值越接近 1 越同涨同跌，越接近 −1 越反向。自行添加的标的无历史序列，显示为「—」。</div>
+      <div id="corrTbl"></div>
+    </div>
+    <div class="chartbox">
+      <h4>组合体检结论</h4>
+      <div id="portRisk" style="font-size:13px;color:#3d4752;line-height:1.8"></div>
+    </div>
+  </section>
+
+  <!-- ============ 优先级 ============ -->
+  <section>
+    <div class="shead"><h2>加减仓优先级</h2><span class="sub">按综合分从高到低排序</span></div>
+    <ol class="pri" id="priList"></ol>
+  </section>
+
+  <!-- ============ 补仓候选池 ============ -->
+  <section>
+    <div class="shead"><h2>补仓候选池 · 量化筛选</h2><span class="sub" id="poolSub">18 只跨行业样本池 · 按阈值机械筛选</span></div>
+
+    <div class="grid3" id="gapCards" style="margin-bottom:16px"></div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">
+        <div>
+          <h4 style="font-size:13.5px;font-weight:600">筛选阈值（可调，改完即时重算）</h4>
+          <div class="cap" style="font-size:12px;color:var(--faint);margin-top:2px">阈值是你的风控口径，不是我的观点。调松调紧，结果会明显不同。</div>
+        </div>
+        <div class="bar-actions">
+          <button class="btn" onclick="presetDefensive()">预设：低波防守</button>
+          <button class="btn" onclick="presetGrowth()">预设：低估成长</button>
+          <button class="btn" onclick="resetFilters()">恢复默认</button>
+        </div>
+      </div>
+      <div class="filters" id="filterBox"></div>
+      <div class="togs" id="togBox"></div>
+      <div class="note" id="filterHint"></div>
+    </div>
+
+    <div class="shead" style="margin:22px 0 10px"><h2 style="font-size:15px">筛选结果</h2><span class="sub" id="poolCnt"></span></div>
+    <div class="tblwrap" style="margin-bottom:16px"><table id="poolTbl"></table></div>
+
+    <div class="chartbox">
+      <h4>结果解读</h4>
+      <div id="poolComment" style="font-size:13px;color:#3d4752;line-height:1.8"></div>
+    </div>
+
+    <div class="disc" style="margin-top:16px">
+      <b>关于这一板块，请明确两点：</b><br>
+      一、<b>这不是推荐买入名单。</b>上表是按你设定阈值对 18 只样本股的机械筛选结果，全部指标来自公开数据、规则完全透明，不含任何主观看多判断。任何一只都可能有未进入指标的风险（治理、商誉、政策、诉讼等）。<br>
+      二、<b>样本池只有 18 只，不代表全市场。</b>它只覆盖常见的大市值行业龙头，缺失的行业（军工、农业、传媒、券商等）需要你自己补进来——用上方「+ 添加标的」录入后即可参与体检，也可以在页面脚本的 <span class="mono">POOL</span> 数组里扩充样本。<br>
+      相关性为近一月（2026-08-11 → 09-14，24 个交易日）日收益与当前持仓的均值，样本较短，只作方向参考。
+    </div>
+  </section>
+
+  <!-- ============ 反向提醒 ============ -->
+  <section>
+    <div class="shead"><h2>两个容易走偏的地方</h2></div>
+    <div class="grid2">
+      <div class="card" style="font-size:13px;color:#3d4752;line-height:1.8">
+        <b>一、砍比亚迪之前先想清楚是「逻辑」还是「价格」。</b><br>
+        它的 PB 已经在 5 年 0.4% 分位，是五只里最便宜的资产端定价。如果你砍它纯粹因为它跌了，那是被价格锚驱动，不是被逻辑驱动。真正该确认的是：你信不信它的盈利能修复？如果信，这个位置砍可能砍在底部；如果不信，那才是出清的理由。
+      </div>
+      <div class="card" style="font-size:13px;color:#3d4752;line-height:1.8">
+        <b>二、低估值 ≠ 该加仓，要看资金有没有转向。</b><br>
+        恒瑞是典型：估值分位已经打到历史底（PB 0.0% 分位），但 20 日主力净流出 55.2 亿是五只最多。便宜是必要条件不是充分条件。更稳的做法是等出现「资金连续净流入 + 站回 20 日线」再动手，而不是在流出过程中接飞刀。
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 免责 ============ -->
+  <section>
+    <div class="disc">
+      <b>数据来源与口径</b><br>
+      行情收盘价 / 今日涨跌幅 / 近 20 日与当日主力资金净流入 / 资产负债口径 / 均线与技术指标：<b>腾讯自选股行情接口（westock-data，2026-09-14 盘中）</b>。<br>
+      PE-TTM / PB / 5 年历史估值分位 / ROE / 净利率 / 毛利率 / 营收与净利同比 / 股息率 / 资产负债率：<b>NeoData 金融数据（截至 2026-09-14，财务为 2025 年报口径）</b>。<br>
+      近 1 月区间涨跌幅（2026-08-11 → 09-14）与相关性矩阵：由上述日 K 数据本地计算，相关性样本为 24 个交易日。<br>
+      <b>免责声明</b>：本页为基于公开数据的多维度量化整理，<b>不构成任何投资建议</b>，也不构成证券投资咨询服务。评分模型为统一口径的机械计算，跨行业可比性有限。买卖决策请结合个人风险承受能力、资金期限与持仓成本，并自行核实关键数据。
+    </div>
+    <div class="foot" style="margin-top:22px">
+      持仓体检报告 · 生成于 2026-09-14 · 页面完全离线运行，添加的标的数据保存在本机浏览器中。
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ 添加标的弹窗 ============ -->
+<div class="mask" id="mask">
+  <div class="modal">
+    <div class="mh">
+      <h3>添加标的</h3>
+      <button class="x" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="mb">
+      <div class="fgroup">
+        <div class="fg">基本信息</div>
+        <div class="frow">
+          <label class="f"><span>名称 *</span><input id="f_name" placeholder="如 招商银行"></label>
+          <label class="f"><span>代码</span><input id="f_code" placeholder="如 600036.SH"></label>
+          <label class="f"><span>行业</span><input id="f_ind" placeholder="如 银行"></label>
+          <label class="f"><span>仓位 %</span><input id="f_w" type="number" step="1" value="20"></label>
+        </div>
+      </div>
+      <div class="fgroup">
+        <div class="fg">行情 · 估值</div>
+        <div class="frow">
+          <label class="f"><span>现价</span><input id="f_price" type="number" step="0.01"></label>
+          <label class="f"><span>今日涨跌幅 %</span><input id="f_chg" type="number" step="0.01"></label>
+          <label class="f"><span>近1月涨跌幅 %</span><input id="f_m1" type="number" step="0.01"></label>
+          <label class="f"><span>股息率 %</span><input id="f_dy" type="number" step="0.01"></label>
+        </div>
+        <div class="frow" style="margin-top:10px">
+          <label class="f"><span>PE (TTM)</span><input id="f_pe" type="number" step="0.01"></label>
+          <label class="f"><span>PE 五年分位 %</span><input id="f_pep" type="number" step="0.1"></label>
+          <label class="f"><span>PB</span><input id="f_pb" type="number" step="0.01"></label>
+          <label class="f"><span>PB 五年分位 %</span><input id="f_pbp" type="number" step="0.1"></label>
+        </div>
+      </div>
+      <div class="fgroup">
+        <div class="fg">质量 · 成长（年报口径，%）</div>
+        <div class="frow c3">
+          <label class="f"><span>ROE</span><input id="f_roe" type="number" step="0.01"></label>
+          <label class="f"><span>销售净利率</span><input id="f_npm" type="number" step="0.01"></label>
+          <label class="f"><span>销售毛利率</span><input id="f_gpm" type="number" step="0.01"></label>
+        </div>
+        <div class="frow c3" style="margin-top:10px">
+          <label class="f"><span>资产负债率</span><input id="f_debt" type="number" step="0.01"></label>
+          <label class="f"><span>营收同比</span><input id="f_rev" type="number" step="0.01"></label>
+          <label class="f"><span>归母净利同比</span><input id="f_np" type="number" step="0.01"></label>
+        </div>
+      </div>
+      <div class="fgroup">
+        <div class="fg">资金 · 技术</div>
+        <div class="frow c3">
+          <label class="f"><span>20日主力净流入（亿元）</span><input id="f_flow" type="number" step="0.01"></label>
+          <label class="f"><span>RSI6</span><input id="f_rsi" type="number" step="0.01"></label>
+          <label class="f"><span>现价相对 MA20 %</span><input id="f_ma" type="number" step="0.01"></label>
+        </div>
+      </div>
+      <div class="note" style="margin-top:4px">留空的数值会按中性处理（分位缺失时以 50 计）。评分与「保留 / 观察 / 减仓 / 出清」判断由本页模型自动计算。</div>
+    </div>
+    <div class="mf">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn pri-btn" onclick="submitStock()">加入体检</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =======================================================================
+   基础数据（2026-09-14）
+   ======================================================================= */
+const BASE = [
+  {name:'贵州茅台', code:'600519.SH', ind:'白酒', price:1277.96, chg:0.22, m1:-5.71,
+   pe:19.57, pep:5.4, pb:6.34, pbp:2.9, dy:4.07, roe:32.53, npm:50.53, gpm:91.18,
+   rev:-1.20, np:-4.53, debt:16.42, flow:-31.24, rsi6:32.73, maDev:-1.51,
+   note:'质量与估值双优的防守压舱石：ROE 32.5%、毛利率 91.2%、负债率仅 16.4%、股息率 4.07%，估值砸到 5 年 5.4% 分位。代价是增长转负（营收 −1.2%、净利 −4.5%）。市场对增长见顶已充分定价，这个位置向下空间有限。'},
+  {name:'宁德时代', code:'300750.SZ', ind:'动力电池', price:337.11, chg:2.0, m1:-14.94,
+   pe:17.99, pep:10.9, pb:4.10, pbp:9.0, dy:2.36, roe:24.91, npm:18.12, gpm:26.27,
+   rev:17.04, np:42.28, debt:61.94, flow:-44.93, rsi6:32.59, maDev:-6.92,
+   note:'五只里唯一做到「高增长 + 低估值」的：归母净利 +42.3%、营收 +17.0%、ROE 24.9%，而 PE 只有 17.99 倍、处在 5 年 10.9% 分位。短板是负债率 61.9%、20 日主力仍净流出 44.9 亿，短期资金面偏弱——但当日已转为净流入 +7.13 亿，是五只里唯一明显回补的。'},
+  {name:'比亚迪', code:'002594.SZ', ind:'新能源整车', price:85.43, chg:1.7, m1:-4.77,
+   pe:26.02, pep:39.9, pb:3.19, pbp:0.4, dy:0.42, roe:15.31, npm:4.20, gpm:17.74,
+   rev:3.46, np:-18.97, debt:70.74, flow:-23.43, rsi6:40.54, maDev:-3.33,
+   note:'五只里基本面最差的一只。2025 年归母净利同比 −19.0%，2026 年中报净利率进一步压到 3.58%、单半年归母仅 123.3 亿；ROE 15.3%、净利率 4.2%、毛利率 17.7% 全面垫底；负债率 70.7%、流动比率 0.87 是五只里唯一低于 1 的，短期偿债压力最大。PE 26 看似不高，但分母在萎缩。资产端确实便宜（PB 5 年 0.4% 分位），属于「便宜但有原因」。'},
+  {name:'恒瑞医药', code:'600276.SH', ind:'创新药', price:43.15, chg:1.12, m1:-19.74,
+   pe:36.65, pep:1.2, pb:4.39, pbp:0.0, dy:0.46, roe:14.26, npm:24.40, gpm:86.21,
+   rev:13.02, np:21.69, debt:11.55, flow:-55.22, rsi6:22.83, maDev:-7.45,
+   note:'结构最干净的一只：营收 +13.0%、归母净利 +21.7%、毛利率 86.2%、负债率仅 11.6%、流动比率 8.08；PB 落在 5 年 0.0% 分位、PE 1.2% 分位，是历史极值底部。PE 绝对值 36.65 看着高，但那是创新药的估值常态。问题在资金：近一月领跌 −19.75%，20 日主力净流出 55.2 亿（五只最多），RSI6 22.8 深度超卖。价值与资金背离，宜观察不宜急加。'},
+  {name:'立讯精密', code:'002475.SZ', ind:'消费电子', price:52.78, chg:-4.71, m1:-5.85,
+   pe:24.08, pep:45.6, pb:4.60, pbp:34.0, dy:0.57, roe:21.10, npm:5.47, gpm:11.91,
+   rev:23.64, np:24.20, debt:66.07, flow:-11.08, rsi6:32.45, maDev:-4.92,
+   note:'质地不差：营收 +23.6%、归母净利 +24.2% 双高增，ROE 21.1%，是五只里近期成长动能最强的。但它是五只里估值最高的——PE 45.6% 分位、PB 34.0% 分位，且代工模式下毛利率仅 11.9%（五只最低）、负债率 66.1%。今日单日 −4.59% 跌破布林下轨，当日主力净流出 10.5 亿、占流通盘 0.27%（五只最急）。可以持有吃趋势，但到目标位应分批减，别把浮盈当无限持有的理由。'}
+];
+/* 修正：把 BASE 里占位用的 rev/np 写成真实值（茅台） */
+BASE[0].rev = -1.20;
+BASE[0].np  = -4.53;
+
+const CORR = [
+  [ 1.000,-0.148,-0.097, 0.123,-0.586],
+  [-0.148, 1.000, 0.193, 0.005, 0.088],
+  [-0.097, 0.193, 1.000, 0.207, 0.010],
+  [ 0.123, 0.005, 0.207, 1.000,-0.112],
+  [-0.586, 0.088, 0.010,-0.112, 1.000]
+];
+const CORR_NAMES = ['贵州茅台','宁德时代','比亚迪','恒瑞医药','立讯精密'];
+
+/* 候选池样本（18 只，2026-09-14）。
+   相关性 corrAvg / corrMax = 近一月日收益与当前持仓五只的相关系数（均值 / 最大）。
+   fin:true 表示金融业，资产负债率为行业口径（含存款/保费负债），不参与杠杆对比。 */
+const POOL = [
+  {sym:'sh600036', name:'招商银行', code:'600036.SH', ind:'银行', price:41.83, chg:1.16, pe:6.87, pep:58.5608, pb:0.91, pbp:25.1447, roe:13.44, npm:44.77, gpm:null, debt:90.2, rev:0.01, np:1.21, dy:4.82, flow:0.84, flow1:-2.07, rsi6:71.93, maDev:3.88, m1:7.89, corrAvg:-0.029, corrMax:0.592, fin:true},
+  {sym:'sh601288', name:'农业银行', code:'601288.SH', ind:'银行', price:7.0, chg:0.43, pe:8.19, pep:88.6683, pb:0.85, pbp:84.2845, roe:10.16, npm:40.26, gpm:null, debt:93.35, rev:2.08, np:3.18, dy:3.56, flow:10.89, flow1:0.19, rsi6:64.43, maDev:1.98, m1:6.71, corrAvg:-0.13, corrMax:0.387, fin:true},
+  {sym:'sh601318', name:'中国平安', code:'601318.SH', ind:'保险', price:54.73, chg:-0.18, pe:6.23, pep:0.1654, pb:0.98, pbp:38.2961, roe:14.0, npm:15.07, gpm:null, debt:89.81, rev:2.1, np:6.45, dy:4.93, flow:-0.31, flow1:-3.53, rsi6:43.87, maDev:0.48, m1:5.62, corrAvg:0.117, corrMax:0.306, fin:true},
+  {sym:'sh600900', name:'长江电力', code:'600900.SH', ind:'公用事业', price:28.63, chg:0.63, pe:19.23, pep:23.9041, pb:3.22, pbp:69.9752, roe:15.9, npm:40.52, gpm:61.67, debt:58.27, rev:2.07, np:6.18, dy:3.5, flow:0.06, flow1:0.4, rsi6:68.14, maDev:1.45, m1:1.38, corrAvg:-0.086, corrMax:0.362},
+  {sym:'sh600941', name:'中国移动', code:'600941.SH', ind:'通信运营', price:98.16, chg:0.45, pe:16.08, pep:57.0044, pb:1.49, pbp:32.9515, roe:9.9, npm:13.07, gpm:28.87, debt:33.22, rev:0.91, np:-0.92, dy:4.79, flow:1.59, flow1:-0.43, rsi6:49.37, maDev:-0.03, m1:2.13, corrAvg:-0.11, corrMax:0.488},
+  {sym:'sh601088', name:'中国神华', code:'601088.SH', ind:'煤炭', price:47.2, chg:-0.65, pe:19.09, pep:95.6162, pb:2.29, pbp:97.8495, roe:12.76, npm:21.29, gpm:35.08, debt:23.31, rev:-13.21, np:-5.3, dy:4.26, flow:5.73, flow1:-0.37, rsi6:49.95, maDev:-0.02, m1:6.45, corrAvg:-0.159, corrMax:0.107},
+  {sym:'sz000858', name:'五粮液', code:'000858.SZ', ind:'白酒', price:69.85, chg:0.14, pe:20.69, pep:50.5376, pb:2.29, pbp:1.3234, roe:6.89, npm:22.99, gpm:77.54, debt:35.69, rev:-54.55, np:-71.89, dy:7.38, flow:-23.31, flow1:0.1, rsi6:29.33, maDev:-2.05, m1:-7.02, corrAvg:0.173, corrMax:0.644},
+  {sym:'sz000333', name:'美的集团', code:'000333.SZ', ind:'家电', price:86.8, chg:0.63, pe:14.83, pep:83.6228, pb:3.11, pbp:79.7353, roe:19.7, npm:9.75, gpm:26.39, debt:61.17, rev:12.11, np:14.03, dy:4.96, flow:1.48, flow1:-1.05, rsi6:57.79, maDev:0.74, m1:3.1, corrAvg:-0.067, corrMax:0.459},
+  {sym:'sh600887', name:'伊利股份', code:'600887.SH', ind:'食品饮料', price:26.85, chg:0.71, pe:16.66, pep:34.9049, pb:3.14, pbp:18.6931, roe:20.87, npm:9.96, gpm:34.58, debt:61.51, rev:0.21, np:36.82, dy:5.14, flow:2.67, flow1:1.57, rsi6:69.08, maDev:2.27, m1:3.71, corrAvg:0.091, corrMax:0.51},
+  {sym:'sh600309', name:'万华化学', code:'600309.SH', ind:'化工', price:73.51, chg:-1.33, pe:14.16, pep:27.2126, pb:2.1, pbp:15.0538, roe:12.44, npm:6.91, gpm:13.61, debt:62.81, rev:11.62, np:-3.88, dy:1.7, flow:9.57, flow1:-0.81, rsi6:34.83, maDev:-1.9, m1:1.67, corrAvg:0.103, corrMax:0.474},
+  {sym:'sh601899', name:'紫金矿业', code:'601899.SH', ind:'有色金属', price:32.25, chg:-0.03, pe:12.68, pep:11.4971, pb:4.5, pbp:81.555, roe:33.04, npm:18.28, gpm:27.73, debt:51.56, rev:14.96, np:61.55, dy:1.86, flow:24.73, flow1:1.44, rsi6:32.85, maDev:-4.12, m1:1.45, corrAvg:0.07, corrMax:0.442},
+  {sym:'sz002371', name:'北方华创', code:'002371.SZ', ind:'半导体设备', price:626.0, chg:-1.26, pe:80.94, pep:71.9603, pb:11.35, pbp:88.3375, roe:16.41, npm:13.74, gpm:40.1, debt:51.08, rev:30.85, np:-1.77, dy:0.12, flow:-38.11, flow1:0.3, rsi6:22.58, maDev:-8.1, m1:-15.25, corrAvg:0.069, corrMax:0.747},
+  {sym:'sz300760', name:'迈瑞医疗', code:'300760.SZ', ind:'医疗器械', price:160.1, chg:-1.62, pe:25.08, pep:21.7535, pb:5.06, pbp:7.196, roe:21.58, npm:25.39, gpm:60.32, debt:27.43, rev:-9.38, np:-30.28, dy:2.74, flow:-10.01, flow1:-1.56, rsi6:33.04, maDev:-1.01, m1:5.29, corrAvg:-0.057, corrMax:0.337},
+  {sym:'sh603259', name:'药明康德', code:'603259.SH', ind:'CXO', price:158.86, chg:5.04, pe:21.15, pep:46.981, pb:5.6, pbp:74.7725, roe:28.56, npm:42.53, gpm:47.64, debt:22.18, rev:15.84, np:102.65, dy:1.44, flow:-1.38, flow1:5.62, rsi6:61.45, maDev:0.75, m1:-1.83, corrAvg:0.04, corrMax:0.33},
+  {sym:'sh601012', name:'隆基绿能', code:'601012.SH', ind:'光伏', price:11.33, chg:0.09, pe:null, pep:null, pb:1.78, pbp:6.3689, roe:-11.15, npm:-9.25, gpm:0.81, debt:64.43, rev:-14.82, np:25.29, dy:null, flow:-9.49, flow1:0.17, rsi6:18.19, maDev:-5.82, m1:-10.79, corrAvg:0.215, corrMax:0.492, loss:true},
+  {sym:'sh600031', name:'三一重工', code:'600031.SH', ind:'工程机械', price:19.92, chg:0.71, pe:20.47, pep:21.34, pb:1.98, pbp:24.483, roe:11.18, npm:9.51, gpm:27.54, debt:48.39, rev:14.73, np:41.18, dy:2.46, flow:-3.55, flow1:-1.0, rsi6:54.55, maDev:2.17, m1:6.41, corrAvg:-0.042, corrMax:0.049},
+  {sym:'sz300124', name:'汇川技术', code:'300124.SZ', ind:'工控自动化', price:53.66, chg:0.26, pe:29.65, pep:5.7072, pb:3.94, pbp:0.0, roe:16.34, npm:11.47, gpm:28.95, debt:47.93, rev:21.77, np:17.84, dy:0.93, flow:-11.15, flow1:-0.22, rsi6:11.03, maDev:-9.18, m1:-12.13, corrAvg:0.16, corrMax:0.473},
+  {sym:'sh601888', name:'中国中免', code:'601888.SH', ind:'免税消费', price:51.71, chg:0.08, pe:26.23, pep:15.3019, pb:1.87, pbp:0.4136, roe:6.48, npm:6.87, gpm:32.75, debt:18.48, rev:-4.92, np:-15.96, dy:1.35, flow:-7.16, flow1:-0.18, rsi6:28.68, maDev:-2.66, m1:-5.93, corrAvg:0.269, corrMax:0.586},
+];
+
+/* =======================================================================
+   技术位（150 日前复权日K，截止 2026-09-14）
+   sup / res = 最近支撑 / 最近压力；sig = 20 日日收益率标准差(%)
+   支撑候选：MA20 / MA60 / 20日低×1.01 / 60日低×1.02 → 取「低于现价且最高」者
+   压力候选：20日高×0.99 / 60日高×0.98 / MA20 / MA60 → 取「高于现价且最低」者
+   res 为 null 表示已创阶段新高、上方无技术压力
+   ======================================================================= */
+const TECH = {
+  sh600031:{n:'三一重工',sup:19.496,supSrc:'MA20',res:20.354,resSrc:'20日高',sig:1.57},
+  sh600036:{n:'招商银行',sup:40.267,supSrc:'MA20',res:null,resSrc:'创新高压制',sig:1.06},
+  sh600276:{n:'恒瑞医药',sup:42.728,supSrc:'60日低',res:46.623,resSrc:'MA20',sig:1.99},
+  sh600309:{n:'万华化学',sup:72.72,supSrc:'MA60',res:74.93,resSrc:'MA20',sig:1.82},
+  sh600519:{n:'贵州茅台',sup:1174.03,supSrc:'60日低',res:1297.56,resSrc:'MA20',sig:1.06},
+  sh600887:{n:'伊利股份',sup:26.254,supSrc:'MA20',res:27.146,resSrc:'60日高',sig:0.81},
+  sh600900:{n:'长江电力',sup:28.221,supSrc:'MA20',res:28.979,resSrc:'60日高',sig:0.84},
+  sh600941:{n:'中国移动',sup:96.03,supSrc:'20日低',res:98.98,resSrc:'60日高',sig:0.86},
+  sh601012:{n:'隆基绿能',sup:11.282,supSrc:'20日低',res:12.03,resSrc:'MA20',sig:1.51},
+  sh601088:{n:'中国神华',sup:45.238,supSrc:'20日低',res:48.49,resSrc:'60日高',sig:1.30},
+  sh601288:{n:'农业银行',sup:6.864,supSrc:'MA20',res:7.029,resSrc:'20日高',sig:1.35},
+  sh601318:{n:'中国平安',sup:54.47,supSrc:'MA20',res:56.85,resSrc:'60日高',sig:1.59},
+  sh601888:{n:'中国中免',sup:50.85,supSrc:'60日低',res:53.13,resSrc:'MA20',sig:1.33},
+  sh601899:{n:'紫金矿业',sup:31.764,supSrc:'20日低',res:33.636,resSrc:'MA20',sig:2.36},
+  sh603259:{n:'药明康德',sup:157.67,supSrc:'MA20',res:169.63,resSrc:'60日高',sig:2.20},
+  sz000333:{n:'美的集团',sup:86.16,supSrc:'MA20',res:87.61,resSrc:'20日高',sig:0.97},
+  sz000858:{n:'五粮液',sup:69.3,supSrc:'60日低',res:71.31,resSrc:'MA20',sig:0.82},
+  sz002371:{n:'北方华创',sup:619.98,supSrc:'20日低',res:681.17,resSrc:'MA20',sig:2.55},
+  sz002475:{n:'立讯精密',sup:52.4,supSrc:'20日低',res:55.51,resSrc:'MA20',sig:2.82},
+  sz002594:{n:'比亚迪',sup:83.49,supSrc:'20日低',res:88.37,resSrc:'MA20',sig:1.55},
+  sz300124:{n:'汇川技术',sup:53.38,supSrc:'20日低',res:59.09,resSrc:'MA20',sig:1.88},
+  sz300750:{n:'宁德时代',sup:332.52,supSrc:'60日低',res:362.16,resSrc:'MA20',sig:1.50},
+  sz300760:{n:'迈瑞医疗',sup:151.01,supSrc:'MA60',res:161.74,resSrc:'MA20',sig:1.85},
+};
+
+const KEY = 'holding_checkup_v1';
+
+/* =======================================================================
+   评分模型
+   ======================================================================= */
+const clamp = (v,a,b)=>Math.min(b,Math.max(a,v));
+function norm(v,lo,hi){ if(v==null||isNaN(v)) return 50; return clamp((v-lo)/(hi-lo)*100,0,100); }
+
+function score(s){
+  const pep = (s.pep==null||isNaN(s.pep)) ? 50 : s.pep;
+  const val  = clamp(100-pep,0,100);
+  // 金融业资产负债率含存款/保费负债，口径不同，不参与打分，权重转给 ROE 与净利率
+  const qual = s.fin
+    ? 0.60*norm(s.roe,0,25) + 0.40*norm(s.npm,0,50)
+    : 0.50*norm(s.roe,0,35) + 0.25*norm(s.npm,0,30) + 0.25*(100-norm(s.debt,0,75));
+  const grow = 0.60*clamp(50+(s.np||0)*1.2,0,100) + 0.40*clamp(50+(s.rev||0)*1.5,0,100);
+  const fund = 100 - clamp((-(s.flow||0))/60*100,0,100);
+  const maDev = (s.maDev==null||isNaN(s.maDev)) ? 0 : s.maDev;
+  const tech = clamp(50 + maDev*3 + ((s.rsi6||45)-45)*0.4, 0, 100);
+  const total = 0.30*val + 0.24*qual + 0.26*grow + 0.12*fund + 0.08*tech;
+  return {val,qual,grow,fund,tech,total:Math.round(total*10)/10};
+}
+function verdict(t){
+  if(t>=68) return {k:'keep', label:'保留', cls:'b-keep'};
+  if(t>=60) return {k:'watch',label:'观察', cls:'b-watch'};
+  if(t>=48) return {k:'cut',  label:'减仓', cls:'b-cut'};
+  return {k:'out', label:'出清', cls:'b-out'};
+}
+
+/* =======================================================================
+   买卖参考价（模型推导，非投资建议）
+   规则完全公开：
+     综合分 t >= 68 → kb 1.02 / ks 1.05   （质地好，不必等深跌，且可多拿一段）
+     综合分 t >= 60 → kb 1.00 / ks 1.02
+     综合分 t >= 48 → kb 0.95 / ks 0.95   （有短板，要更便宜才买、更早兑现）
+     否则          → kb 0.90 / ks 0.90   （基本面弱，要深度折价才考虑）
+     买入参考价 = min(最近支撑 × kb, 现价)
+     卖出参考价 = max(最近压力 × ks, 现价)
+     止损参考价 = 买入参考价 × 0.92
+   ======================================================================= */
+const symOf = c => {
+  const p = String(c||'').split('.');
+  if(p.length !== 2) return null;
+  const m = p[1].toUpperCase();
+  const pre = m==='SH' ? 'sh' : m==='SZ' ? 'sz' : m==='HK' ? 'hk' : null;
+  return pre ? pre + p[0] : null;
+};
+function techOf(s){ return TECH[s.sym] || TECH[symOf(s.code)] || TECH[String(s.code||'').toLowerCase()] || null; }
+function levels(s, total){
+  const price = +s.price;
+  if(!price || isNaN(price)) return null;
+  const tk = techOf(s);
+  let sup, res, supSrc, resSrc, rough = false;
+  if(tk){
+    sup = tk.sup; res = tk.res; supSrc = tk.supSrc; resSrc = tk.resSrc;
+  } else {
+    // 手工录入的标的没有K线：用「现价相对 MA20」录入值反推 MA20，标为粗估
+    const md = (s.maDev==null || isNaN(s.maDev)) ? 0 : +s.maDev;
+    const m = price / (1 + md/100);
+    sup = (m < price*0.998) ? m : price*0.95;
+    res = (m > price*1.002) ? m : null;
+    supSrc = 'MA20（录入值反推）'; resSrc = res ? 'MA20（录入值反推）' : '创新高压制';
+    rough = true;
+  }
+  const t = (total==null || isNaN(total)) ? 50 : total;
+  const kb = t>=68?1.02 : t>=60?1.00 : t>=48?0.95 : 0.90;
+  const ks = t>=68?1.05 : t>=60?1.02 : t>=48?0.95 : 0.90;
+  const buy  = Math.min(sup * kb, price);
+  const sell = Math.max((res==null ? price*1.08 : res) * ks, price);
+  const stop = buy * 0.92;
+  const zone = buy >= price*0.999 ? 'buy' : (sell <= price*1.001 ? 'sell' : 'hold');
+  return {
+    price, buy, sell, stop, sup, res, supSrc, resSrc, rough, t, kb, ks, zone,
+    buyPct:  (buy /price - 1) * 100,
+    sellPct: (sell/price - 1) * 100,
+    rr: (sell - buy) / price * 100,
+  };
+}
+function zoneLabel(l){
+  if(!l) return {label:'无K线数据', cls:'b-out'};
+  if(l.zone==='buy')  return {label:'现价已在买入区', cls:'b-keep'};
+  if(l.zone==='sell') return {label:'现价已在卖出区', cls:'b-cut'};
+  if(l.sellPct <= 4)  return {label:'接近卖出区', cls:'b-watch'};
+  if(l.buyPct >= -2)  return {label:'接近买入区', cls:'b-watch'};
+  return {label:'区间中部', cls:'b-keep'};
+}
+const fnum=(v,d=2)=> (v==null||isNaN(v))?'—':Number(v).toFixed(d);
+const sgn=(v,d=2)=> (v==null||isNaN(v))?'—':(v>0?'+':'')+Number(v).toFixed(d);
+const cls=v=>(v>0?'up':(v<0?'down':''));
+const C_UP='#c4372c', C_DOWN='#1a8a58', C_MUT='#98a1ac', C_LINE='#e5e8ec';
+
+/* =======================================================================
+   状态
+   ======================================================================= */
+let stocks = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){
+      const d = JSON.parse(raw);
+      if(Array.isArray(d) && d.length) return d;
+    }
+  }catch(e){}
+  return BASE.map((s,i)=>Object.assign({},s,{weight:20, custom:false}));
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(stocks)); }catch(e){} }
+function resetAll(){ stocks = BASE.map((s,i)=>Object.assign({},s,{weight:20,custom:false})); save(); render(); toast('已恢复初始五只标的'); }
+
+/* =======================================================================
+   渲染入口
+   ======================================================================= */
+function render(){
+  document.getElementById('cntTxt').textContent = stocks.length + ' 只';
+  renderTiers(); renderTable(); renderScatter(); renderFlow(); renderChg();
+  renderHeat(); renderScoreBar(); renderCards(); renderLevels(); renderPortfolio(); renderPriority();
+  renderPool();
+  save();
+}
+
+/* ---------- 分层 ---------- */
+function renderTiers(){
+  const scored = stocks.map(s=>({s,v:verdict(score(s).total)}));
+  const t1 = scored.filter(x=>x.v.k==='keep');
+  const t2 = scored.filter(x=>x.v.k==='watch');
+  const t3 = scored.filter(x=>x.v.k==='cut'||x.v.k==='out');
+  const box = document.getElementById('tiers');
+  box.innerHTML = [
+    tcard('t1','核心仓 · 保留','keep 级：基本面与估值同时占优', t1),
+    tcard('t2','观察仓 · 盯资金','watch 级：有硬伤或资金背离', t2),
+    tcard('t3','问题仓 · 减/出','减仓或出清级：性价比最差', t3)
+  ].join('');
+}
+function tcard(cls,title,desc,arr){
+  const items = arr.length
+    ? arr.map(x=>{
+        const sc = score(x.s);
+        const weakest = [
+          ['估值',sc.val],['质量',sc.qual],['成长',sc.grow],['资金',sc.fund],['技术',sc.tech]
+        ].sort((a,b)=>a[1]-b[1])[0];
+        return '<li>'+x.s.name+'　综合 '+sc.total+'（短板：'+weakest[0]+' '+Math.round(weakest[1])+'）</li>';
+      }).join('')
+    : '<li style="color:#a5adb6">暂无</li>';
+  return '<div class="tier '+cls+'"><div class="tl">'+desc+'</div><div class="tt">'+title+'</div><ul>'+items+'</ul></div>';
+}
+
+/* ---------- 总览表 ---------- */
+function renderTable(){
+  const head = ['标的','现价','今日','近1月','PE','PE五年分位','PB','PB五年分位','股息率','ROE','净利率','毛利率',
+                '营收同比','净利同比','资产负债率','20日主力净流入','仓位%','综合分','买入参考价','卖出参考价','判断'];
+  let h = '<thead><tr>'+head.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>';
+  const totalW = stocks.reduce((a,b)=>a+(+b.weight||0),0);
+  stocks.forEach((s,i)=>{
+    const sc = score(s), v = verdict(sc.total);
+    const lv = levels(s, sc.total);
+    h += '<tr>'
+      + '<td><span class="nm">'+s.name+'</span><span class="cd">'+(s.code||'')+'</span></td>'
+      + '<td class="mono">'+fnum(s.price)+'</td>'
+      + '<td class="mono '+cls(s.chg)+'">'+sgn(s.chg)+'%</td>'
+      + '<td class="mono '+cls(s.m1)+'">'+sgn(s.m1)+'%</td>'
+      + '<td class="mono">'+fnum(s.pe)+'</td>'
+      + '<td class="mono">'+fnum(s.pep,1)+'%</td>'
+      + '<td class="mono">'+fnum(s.pb)+'</td>'
+      + '<td class="mono">'+fnum(s.pbp,1)+'%</td>'
+      + '<td class="mono">'+fnum(s.dy)+'%</td>'
+      + '<td class="mono">'+fnum(s.roe)+'%</td>'
+      + '<td class="mono">'+fnum(s.npm)+'%</td>'
+      + '<td class="mono">'+fnum(s.gpm)+'%</td>'
+      + '<td class="mono '+cls(s.rev)+'">'+sgn(s.rev)+'%</td>'
+      + '<td class="mono '+cls(s.np)+'">'+sgn(s.np)+'%</td>'
+      + '<td class="mono">'+fnum(s.debt)+'%</td>'
+      + '<td class="mono '+cls(s.flow)+'">'+sgn(s.flow)+'</td>'
+      + '<td><input class="w" type="number" min="0" step="1" value="'+(s.weight!=null?s.weight:20)+'" oninput="setW('+i+',this.value)"></td>'
+      + '<td class="mono"><b>'+sc.total+'</b></td>'
+      + '<td class="mono" style="color:#2c4f6e">'+(lv?fnum(lv.buy):'—')+'</td>'
+      + '<td class="mono" style="color:#b5622e">'+(lv?fnum(lv.sell):'—')+'</td>'
+      + '<td><span class="badge '+v.cls+'">'+v.label+'</span></td>'
+      + '</tr>';
+  });
+  h += '</tbody>';
+  document.getElementById('ovTbl').innerHTML = h;
+}
+function setW(i,v){ stocks[i].weight = Math.max(0,Math.min(100,+v||0)); save(); renderPortfolio(); }
+
+/* ---------- 散点图：增长 vs 估值分位 ---------- */
+function renderScatter(){
+  const W=1000,H=420,ml=64,mr=30,mt=24,mb=52;
+  const iw=W-ml-mr, ih=H-mt-mb;
+  const xs = stocks.map(s=>+s.np||0);
+  const xmin = Math.min(-25, Math.floor((Math.min(...xs)-6)/5)*5);
+  const xmax = Math.max(55, Math.ceil((Math.max(...xs)+6)/5)*5);
+  const ymin=0,ymax=100;
+  const X = v=> ml + (v-xmin)/(xmax-xmin)*iw;
+  const Y = v=> mt + ih - (v-ymin)/(ymax-ymin)*ih;
+  let g = '';
+  // 网格
+  for(let yv=0; yv<=100; yv+=25){
+    g += '<line x1="'+ml+'" y1="'+Y(yv)+'" x2="'+(W-mr)+'" y2="'+Y(yv)+'" stroke="'+C_LINE+'" stroke-width="1"/>';
+    g += '<text x="'+(ml-10)+'" y="'+(Y(yv)+4)+'" font-size="11" fill="'+C_MUT+'" text-anchor="end">'+yv+'%</text>';
+  }
+  for(let xv=Math.ceil(xmin/10)*10; xv<=xmax; xv+=10){
+    g += '<line x1="'+X(xv)+'" y1="'+mt+'" x2="'+X(xv)+'" y2="'+(mt+ih)+'" stroke="'+C_LINE+'" stroke-width="1"/>';
+    g += '<text x="'+X(xv)+'" y="'+(mt+ih+20)+'" font-size="11" fill="'+C_MUT+'" text-anchor="middle">'+(xv>0?'+':'')+xv+'%</text>';
+  }
+  // 象限分割
+  g += '<line x1="'+X(0)+'" y1="'+mt+'" x2="'+X(0)+'" y2="'+(mt+ih)+'" stroke="#c9d0d8" stroke-width="1.2" stroke-dasharray="4 4"/>';
+  g += '<line x1="'+ml+'" y1="'+Y(50)+'" x2="'+(W-mr)+'" y2="'+Y(50)+'" stroke="#c9d0d8" stroke-width="1.2" stroke-dasharray="4 4"/>';
+  g += '<text x="'+(W-mr-6)+'" y="'+(Y(50)-8)+'" font-size="11" fill="#b0b8c1" text-anchor="end">估值中位 50%</text>';
+  // 象限提示
+  g += '<text x="'+(W-mr-8)+'" y="'+(mt+ih-10)+'" font-size="11.5" fill="#8d9aa6" text-anchor="end">右下：高增长 + 低估 → 性价比优</text>';
+  g += '<text x="'+(ml+10)+'" y="'+(mt+16)+'" font-size="11.5" fill="#b0b8c1">左上：负增长 + 高估 → 最贵</text>';
+  // 点
+  stocks.forEach(s=>{
+    const x=X(+s.np||0), y=Y(+s.pep||50);
+    const c = s.chg<0 ? C_DOWN : C_UP;
+    g += '<circle cx="'+x+'" cy="'+y+'" r="6.5" fill="'+c+'" fill-opacity="0.86" stroke="#fff" stroke-width="1.6"/>';
+    const tx = x > W-mr-120 ? x-11 : x+11;
+    const anchor = x > W-mr-120 ? 'end' : 'start';
+    g += '<text x="'+tx+'" y="'+(y+4)+'" font-size="12" font-weight="600" fill="#2b3540" text-anchor="'+anchor+'">'+s.name+'</text>';
+    g += '<text x="'+tx+'" y="'+(y+18)+'" font-size="10.5" fill="'+C_MUT+'" text-anchor="'+anchor+'">净利 '+sgn(s.np)+'% · PE '+fnum(s.pep,1)+'%分位</text>';
+  });
+  // 轴标签
+  g += '<text x="'+(ml+iw/2)+'" y="'+(H-8)+'" font-size="11.5" fill="#7d8792" text-anchor="middle">归母净利润同比增速（%）</text>';
+  g += '<text x="14" y="'+(mt+ih/2)+'" font-size="11.5" fill="#7d8792" text-anchor="middle" transform="rotate(-90 14 '+(mt+ih/2)+')">PE 五年历史分位（%）</text>';
+  document.getElementById('scatter').innerHTML =
+    '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" style="max-height:440px">'+g+'</svg>';
+}
+
+/* ---------- 通用条形图 ---------- */
+function barChart(el, data, opts){
+  opts = opts||{};
+  const gutter = opts.gutter!==false;     // 数值标签固定在右侧栏
+  const W=560, rowH=30, ml=opts.ml||96, mr=opts.mr||70, mt=10, mb=26;
+  const H = mt+mb+data.length*rowH;
+  const vals = data.map(d=>d.v);
+  const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+  const span = (hi-lo)||1;
+  const iw = W-ml-mr;
+  const X = v=> ml + (v-lo)/span*iw;
+  const zero = X(0);
+  const barTop = mt, barBottom = mt+data.length*rowH;
+  let g='';
+  // 网格与刻度
+  [0,0.5,1].forEach(t=>{
+    const v = lo + span*t;
+    g += '<line x1="'+X(v)+'" y1="'+barTop+'" x2="'+X(v)+'" y2="'+barBottom+'" stroke="'+(t===0?'#d8dee5':'#f0f2f5')+'" stroke-width="1"/>';
+    g += '<text x="'+X(v)+'" y="'+(barBottom+16)+'" font-size="10.5" fill="'+C_MUT+'" text-anchor="middle">'+fmtAxis(v,opts.unit)+'</text>';
+  });
+  data.forEach((d,i)=>{
+    const y = barTop + i*rowH + 5, bh = rowH-13;
+    const positive = d.v>=0;
+    const x0 = positive ? zero : X(d.v);
+    const bw = Math.abs(X(d.v)-zero);
+    const col = opts.neutral ? (d.color||'#4a7093') : (positive?C_UP:C_DOWN);
+    g += '<text x="'+(ml-10)+'" y="'+(y+bh/2+4)+'" font-size="11.5" fill="#48525e" text-anchor="end">'+d.k+'</text>';
+    g += '<rect x="'+x0+'" y="'+y+'" width="'+Math.max(bw,1.5)+'" height="'+bh+'" rx="2.5" fill="'+col+'" fill-opacity="'+(opts.neutral?0.9:0.8)+'"/>';
+    if(gutter){
+      g += '<text x="'+(W-2)+'" y="'+(y+bh/2+4)+'" font-size="11.5" font-weight="600" fill="'+col+'" text-anchor="end">'+d.t+'</text>';
+    }else{
+      const inside = bw>60;
+      const lx = positive ? (inside? X(d.v)-8 : X(d.v)+6) : (inside? X(d.v)+8 : X(d.v)-6);
+      const anchor = positive ? (inside?'end':'start') : (inside?'start':'end');
+      g += '<text x="'+lx+'" y="'+(y+bh/2+4)+'" font-size="11.5" font-weight="600" fill="'+(inside?'#ffffff':col)+'" text-anchor="'+anchor+'">'+d.t+'</text>';
+    }
+  });
+  document.getElementById(el).innerHTML =
+    '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" style="max-height:'+H+'px">'+g+'</svg>';
+}
+function fmtAxis(v,unit){
+  const r = Math.abs(v)>=10?Math.round(v):Math.round(v*10)/10;
+  return (r>0?'+':'')+r+(unit||'');
+}
+
+/* ---------- 资金流 ---------- */
+function renderFlow(){
+  const d = stocks.slice().sort((a,b)=>(a.flow||0)-(b.flow||0))
+    .map(s=>({k:s.name, v:(s.flow||0), t:sgn(s.flow)+' 亿'}));
+  barChart('flowChart', d, {unit:'亿', ml:78, mr:82, gutter:true});
+}
+/* ---------- 今日涨跌 ---------- */
+function renderChg(){
+  const d = stocks.slice().sort((a,b)=>(b.chg||0)-(a.chg||0))
+    .map(s=>({k:s.name, v:s.chg||0, t:sgn(s.chg)+'%'}));
+  barChart('chgChart', d, {unit:'%', ml:78, mr:70, gutter:true});
+}
+
+/* ---------- 五维热力 ---------- */
+const DIMS=[['val','估值'],['qual','质量'],['grow','成长'],['fund','资金'],['tech','技术']];
+function heatColor(v){
+  // 低分偏灰，高分偏深绿（低饱和商务）
+  const t = clamp(v,0,100)/100;
+  const r = Math.round(233 - t*187), gg = Math.round(238 - t*88), b = Math.round(240 - t*86);
+  const dark = t>0.55;
+  return {bg:'rgb('+r+','+gg+','+b+')', fg: dark?'#ffffff':'#39434e'};
+}
+function renderHeat(){
+  let h = '<table class="hm"><thead><tr><th>标的</th>'+DIMS.map(d=>'<th>'+d[1]+'</th>').join('')+'<th>综合</th></tr></thead><tbody>';
+  stocks.forEach(s=>{
+    const sc = score(s), v = verdict(sc.total);
+    h += '<tr><td>'+s.name+'</td>';
+    DIMS.forEach(d=>{
+      const val = sc[d[0]], c = heatColor(val);
+      h += '<td style="background:'+c.bg+';color:'+c.fg+'">'+Math.round(val)+'</td>';
+    });
+    h += '<td style="background:'+heatColor(sc.total).bg+';color:'+heatColor(sc.total).fg+'">'+sc.total+'</td>';
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  document.getElementById('heat').innerHTML = h;
+}
+function renderScoreBar(){
+  const d = stocks.slice().sort((a,b)=>score(b).total-score(a).total)
+    .map(s=>{ const sc=score(s); const v=verdict(sc.total);
+      return {k:s.name, v:sc.total, t:sc.total+' 分 · '+v.label, color:'#2c4f6e'}; });
+  barChart('scoreBar', d, {ml:78, mr:34, neutral:true, gutter:false, axisFmt:v=>Math.round(v)});
+}
+
+/* ---------- 逐只卡片 ---------- */
+function renderCards(){
+  const order = stocks.slice().sort((a,b)=>score(b).total-score(a).total);
+  document.getElementById('cards').innerHTML = order.map(s=>{
+    const sc = score(s), v = verdict(sc.total);
+    const pos20 = (s.maDev==null||isNaN(s.maDev))?'—':sgn(s.maDev)+'%';
+    const techTxt = techLabel(s);
+    const lv = levels(s, sc.total);
+    return ''
+    + '<div class="scard">'
+    +   '<div class="hd">'
+    +     '<div class="l"><h3>'+s.name+'</h3><span class="code">'+(s.code||'')+'　'+(s.ind||'')+'</span></div>'
+    +     '<div style="display:flex;align-items:center;gap:12px">'
+    +       '<span class="px mono '+cls(s.chg)+'">'+fnum(s.price)+'　'+sgn(s.chg)+'%</span>'
+    +       '<span class="badge '+v.cls+'">'+v.label+'</span>'
+    +       (s.custom?'<button class="del" onclick="delStock(\''+s.name+'\')">删除</button>':'')
+    +     '</div>'
+    +   '</div>'
+    +   '<div class="kv">'
+    +     kv('PE / 五年分位', fnum(s.pe)+' · '+fnum(s.pep,1)+'%')
+    +     kv('PB / 五年分位', fnum(s.pb)+' · '+fnum(s.pbp,1)+'%')
+    +     kv('ROE · 净利率', fnum(s.roe)+'% · '+fnum(s.npm)+'%')
+    +     kv('资产负债率', fnum(s.debt)+'%')
+    +     kv('营收 / 净利同比', sgn(s.rev)+'% / '+sgn(s.np)+'%')
+    +     kv('20日主力净流入', sgn(s.flow)+' 亿')
+    +     kv('现价 vs MA20', pos20)
+    +     kv('技术位置', techTxt)
+    +   '</div>'
+    +   '<div class="txt">'+s.note+'</div>'
+    +   lvStrip(lv)
+    +   '<div style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+    +     DIMS.map(d=>{
+            const val = Math.round(sc[d[0]]);
+            return '<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#6d7783">'
+              + d[1] + '<span style="display:inline-block;width:46px;height:5px;border-radius:3px;background:#eef1f4;overflow:hidden;vertical-align:middle">'
+              + '<span style="display:block;height:100%;width:'+val+'%;background:'+(val>=70?'#2f7d5a':val>=50?'#6d93b3':'#c3ccd5')+'"></span></span>'
+              + '<b style="font-size:11px;color:#39434e">'+val+'</b></span>';
+          }).join('')
+    +     '<span style="margin-left:auto;font-size:12px;color:#6d7783">综合 <b style="color:#1e252d;font-size:13px">'+sc.total+'</b></span>'
+    +   '</div>'
+    + '</div>';
+  }).join('');
+}
+function kv(k,v){ return '<div><div class="k">'+k+'</div><div class="v mono">'+v+'</div></div>'; }
+function lvc(k,v,color,d){ return '<div class="lvc"><div class="k">'+k+'</div><div class="v" style="color:'+color+'">'
+  + v + (d?'<span class="d">'+d+'</span>':'') + '</div></div>'; }
+/* 卡片里的价位条：止损 ── 买入 ── 现价 ── 卖出 */
+function lvStrip(l){
+  if(!l) return '<div class="lvstrip"><div class="lvhd" style="margin-bottom:0">买卖参考价'
+    + '<span class="badge b-out">无K线数据</span></div>'
+    + '<div style="font-size:12px;color:#6d7783;margin-top:6px">这只标的是手工录入的，没有日K数据可推导支撑与压力位。</div></div>';
+  const z = zoneLabel(l);
+  const lo = Math.min(l.stop, l.buy, l.price);
+  const hi = Math.max(l.sell, l.price);
+  const span = (hi - lo) || 1;
+  const pos = v => Math.max(0, Math.min(100, (v - lo) / span * 100));
+  return '<div class="lvstrip">'
+    + '<div class="lvhd">买卖参考价（模型推导，非投资建议）'
+    +   '<span class="badge '+z.cls+'">'+z.label+'</span>'
+    +   (l.rough?'<span class="chip">粗估</span>':'')
+    + '</div>'
+    + '<div class="lvbar">'
+    +   '<span class="lvmk stop" style="left:'+pos(l.stop)+'%"></span>'
+    +   '<span class="lvmk buy"  style="left:'+pos(l.buy)+'%"></span>'
+    +   '<span class="lvmk now"  style="left:'+pos(l.price)+'%"></span>'
+    +   '<span class="lvmk sell" style="left:'+pos(l.sell)+'%"></span>'
+    + '</div>'
+    + '<div class="lvrow">'
+    +   lvc('止损参考', fnum(l.stop), '#8a5a5a', '')
+    +   lvc('买入参考', fnum(l.buy),  '#2c4f6e', (l.buyPct>=-0.005?'':sgn(l.buyPct,2)+'%'))
+    +   lvc('现价',     fnum(l.price),'#1e252d', '')
+    +   lvc('卖出参考', fnum(l.sell), '#b5622e', (l.sellPct<=0.005?'':sgn(l.sellPct,2)+'%'))
+    +   lvc('区间宽度', sgn(l.rr,1)+'%', '#39434e', '')
+    + '</div></div>';
+}
+function techLabel(s){
+  const r = s.rsi6;
+  if(r==null||isNaN(r)) return '—';
+  if(r<25) return '超卖';
+  if(r<40) return '偏弱';
+  if(r<60) return '中性';
+  return '偏强';
+}
+function delStock(name){
+  stocks = stocks.filter(s=>s.name!==name);
+  render(); toast('已删除 '+name);
+}
+
+/* ---------- 组合视角 ---------- */
+function renderPortfolio(){
+  const tw = stocks.reduce((a,b)=>a+(+b.weight||0),0) || 1;
+  const w = s=>(+s.weight||0)/tw;
+
+  // 行业分布
+  const indMap = {};
+  stocks.forEach(s=>{ const k=s.ind||'未分类'; indMap[k]=(indMap[k]||0)+w(s); });
+  const inds = Object.keys(indMap).map(k=>({k, p:indMap[k]})).sort((a,b)=>b.p-a.p);
+  const palette = ['#2c4f6e','#4a7093','#7a9ab5','#a8bccd','#c8d6e0','#dfe7ed','#8fa9bd','#5f8299'];
+  let g='', acc=0;
+  const W=560,H=34;
+  inds.forEach((it,i)=>{
+    const x = acc*W, bw = it.p*W;
+    g += '<rect x="'+x+'" y="0" width="'+Math.max(bw-1.5,1)+'" height="'+H+'" rx="3" fill="'+palette[i%palette.length]+'"/>';
+    if(bw>46) g += '<text x="'+(x+bw/2)+'" y="'+(H/2+4)+'" font-size="11" fill="#fff" text-anchor="middle" font-weight="600">'+Math.round(it.p*100)+'%</text>';
+    acc += it.p;
+  });
+  let lg = '<div class="legend">'+inds.map((it,i)=>'<span><i style="background:'+palette[i%palette.length]+'"></i>'+it.k+' '+Math.round(it.p*100)+'%</span>').join('')+'</div>';
+  document.getElementById('indChart').innerHTML = '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="height:34px">'+g+'</svg>'+lg;
+
+  const top = inds[0];
+  const hhi = inds.reduce((a,b)=>a+b.p*b.p,0);
+  document.getElementById('indCap').textContent =
+    '最大行业「'+top.k+'」占 '+Math.round(top.p*100)+'%，行业集中度指数 HHI='+hhi.toFixed(2)
+    + (hhi<0.20?'（分散良好）':hhi<0.30?'（轻度集中）':'（集中度偏高）');
+
+  // 杠杆
+  const lev = stocks.slice().sort((a,b)=>(b.debt||0)-(a.debt||0))
+    .map(s=>({k:s.name, v:s.debt||0, t:fnum(s.debt,1)+'%'}));
+  const maxLev = Math.max(...lev.map(x=>x.v),1);
+  document.getElementById('levChart').innerHTML = lev.map(x=>{
+    const pct = x.v/Math.max(90,maxLev)*100;
+    const c = x.v>=65?'#c4372c':x.v>=50?'#b5894a':'#2f7d5a';
+    return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px">'
+      + '<span style="width:60px;font-size:11.5px;color:#48525e">'+x.k+'</span>'
+      + '<span style="flex:1;height:12px;background:#f1f3f6;border-radius:3px;overflow:hidden"><span style="display:block;height:100%;width:'+pct+'%;background:'+c+';border-radius:3px"></span></span>'
+      + '<span class="mono" style="width:52px;text-align:right;font-size:11.5px;font-weight:600;color:'+c+'">'+x.t+'</span></div>';
+  }).join('');
+  const hiLev = stocks.filter(s=>(+s.weight||0)>0 && (s.debt||0)>=60);
+  const hiW = hiLev.reduce((a,b)=>a+w(b),0);
+  document.getElementById('levCap').textContent = '资产负债率 ≥60% 的高杠杆标的合计占 '+Math.round(hiW*100)+'%（'+hiLev.map(s=>s.name).join('、')+'）';
+
+  // 相关性矩阵
+  const rebuild = stocks.length===5 && stocks.every((s,i)=>CORR_NAMES.indexOf(s.name)>=0);
+  let h = '<table class="hm"><thead><tr><th></th>'+stocks.map(s=>'<th>'+s.name+'</th>').join('')+'</tr></thead><tbody>';
+  stocks.forEach((a,i)=>{
+    h += '<tr><td>'+a.name+'</td>';
+    stocks.forEach((b,j)=>{
+      let val = null;
+      if(rebuild){
+        const ia = CORR_NAMES.indexOf(a.name), ib = CORR_NAMES.indexOf(b.name);
+        val = CORR[ia][ib];
+      }
+      if(val===null){ h += '<td style="background:#f4f6f8;color:#a5adb6">—</td>'; return; }
+      if(i===j){ h += '<td style="background:#e8ecf0;color:#6d7783">1.00</td>'; return; }
+      const neg = val<0;
+      const t = Math.min(Math.abs(val)/0.65,1);
+      const bg = neg
+        ? 'rgb('+Math.round(226-46*t)+','+Math.round(236-56*t)+','+Math.round(232-40*t)+')'
+        : 'rgb('+Math.round(246-56*t)+','+Math.round(226-86*t)+','+Math.round(220-96*t)+')';
+      const fg = t>0.55 ? '#fff' : '#39434e';
+      h += '<td style="background:'+bg+';color:'+fg+'">'+val.toFixed(2)+'</td>';
+    });
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  document.getElementById('corrTbl').innerHTML = h
+    + '<div class="legend"><span><i style="background:#c4372c"></i>正相关（同涨同跌）</span><span><i style="background:#1a8a58"></i>负相关（互相对冲）</span><span><i style="background:#eef1f4"></i>接近 0（基本独立）</span></div>';
+
+  // 结论
+  const wPE = stocks.reduce((a,b)=>a+(b.pe||0)*w(b),0);
+  const wDebt = stocks.reduce((a,b)=>a+(b.debt||0)*w(b),0);
+  const wScore = stocks.reduce((a,b)=>a+score(b).total*w(b),0);
+  const pairs = [];
+  if(rebuild){
+    for(let i=0;i<5;i++) for(let j=i+1;j<5;j++) pairs.push([CORR_NAMES[i],CORR_NAMES[j],CORR[i][j]]);
+  }
+  pairs.sort((a,b)=>b[2]-a[2]);
+  const topPair = pairs[0], negPair = pairs[pairs.length-1];
+  const maxPos = rebuild ? Math.max(0, ...pairs.map(p=>p[2])) : null;
+
+  let txt = '';
+  txt += '<p style="margin-bottom:10px"><b>加权估值与杠杆</b>：按当前仓位加权，组合整体 PE 约 <b>'+wPE.toFixed(1)+' 倍</b>，加权资产负债率 <b>'+wDebt.toFixed(1)+'%</b>，加权综合分 <b>'+wScore.toFixed(1)+'</b>。</p>';
+  txt += '<p style="margin-bottom:10px"><b>行业名义分散，且相关性确实低</b>：' + inds.map(x=>x.k+'（'+Math.round(x.p*100)+'%）').join('、') + ' 分属五个行业。'
+       + (maxPos!==null && maxPos<0.35
+            ? '近一月日收益的最高正相关性也只有 '+topPair[2].toFixed(2)+'（'+topPair[0]+'–'+topPair[1]+'），<b>并没有出现明显的同涨同跌</b>，行业分散是真实有效的。'
+            : '需留意高相关配对。')
+       + '</p>';
+  if(rebuild && negPair[2]<0){
+    txt += '<p style="margin-bottom:10px"><b>组合里有一对天然对冲</b>：'+negPair[0]+' 与 '+negPair[1]+' 近一月相关性 '+negPair[2].toFixed(2)+'，'+(negPair[2]<-0.4?'负相关相当显著（茅台–立讯 −0.59）':'存在一定反向关系')+'。这类组合能压低整体波动，减仓时不要两只一起砍，否则会同时丢掉对冲效果。</p>';
+  }
+  txt += '<p style="margin-bottom:10px"><b>真正的组合风险不在行业，在杠杆和同质性</b>：'+hiLev.map(s=>s.name).join('、')+' 三只负债率都在 60% 以上，合计占 '+Math.round(hiW*100)+'%。它们都是重资产的成长制造类资产，一旦制造业景气或融资环境收紧，回撤会被杠杆放大。若砍掉比亚迪，建议把权重往低负债的恒瑞、茅台倾斜，而不是再补一只高成长制造。</p>';
+  const weakTech = stocks.filter(s=>s.maDev!=null && s.maDev<0).length;
+  txt += '<p><b>系统性回撤信号</b>：'+weakTech+'/'+stocks.length+' 只标的价格位于 20 日线下方，MACD 全部处于空头区间，五只 20 日主力资金全部净流出。这意味着当前的回撤<b>不是某一只的个股问题，而是组合整体的贝塔下杀</b>——这时候「先砍最弱的那只」比「摊平加仓」更稳妥。</p>';
+  document.getElementById('portRisk').innerHTML = txt;
+}
+
+/* ---------- 优先级 ---------- */
+function renderPriority(){
+  const order = stocks.slice().sort((a,b)=>score(b).total-score(a).total);
+  document.getElementById('priList').innerHTML = order.map(s=>{
+    const sc = score(s), v = verdict(sc.total);
+    const dims=[['估值',sc.val],['质量',sc.qual],['成长',sc.grow],['资金',sc.fund],['技术',sc.tech]].sort((a,b)=>a[1]-b[1]);
+    const weak = dims.slice(0,2).map(x=>x[0]+'（'+Math.round(x[1])+'分）').join('、');
+    const strong = dims[dims.length-1];
+    let act = '';
+    if(v.k==='keep'){
+      const growthCore = sc.grow >= 70;
+      act = '<b>保留'+(growthCore?'（成长核心，可优先加仓）':'（防守底仓，波动最低）')+'</b>：最突出的是'+strong[0]+'（'+Math.round(strong[1])+'分）。';
+    }
+    else if(v.k==='watch') act = '<b>保留观察，先不加仓</b>：短板在'+weak+'，等信号改善再动。';
+    else if(v.k==='cut')   act = '<b>减仓 / 设止盈纪律</b>：主要拖累是'+weak+'。';
+    else                   act = '<b>出清优先</b>：'+weak+'两项均弱，是组合里机会成本最高的一只。';
+    return '<li>'
+      + '<b>'+s.name+'</b>（'+(s.code||'')+'）· 综合 <b>'+sc.total+'</b> · <span class="badge '+v.cls+'">'+v.label+'</span><br>'
+      + act
+      + '</li>';
+  }).join('');
+}
+
+/* =======================================================================
+   买卖参考价
+   ======================================================================= */
+const LV_BANDS = [
+  {k:'≥68', kb:'×1.02', ks:'×1.05', d:'质地好（保留）：不必等深跌，回调到支撑即可分批建仓；卖出目标可多留 5% 空间。'},
+  {k:'60–68', kb:'×1.00', ks:'×1.02', d:'尚可（观察）：严格等支撑位，不加价追；卖出目标基本等于压力位。'},
+  {k:'48–60', kb:'×0.95', ks:'×0.95', d:'有短板（减仓）：要在支撑之下再打 5% 折才值得接；到压力位附近就减。'},
+  {k:'<48',   kb:'×0.90', ks:'×0.90', d:'基本面弱（出清）：要跌到支撑下方 10% 才有性价比；卖出价直接压到现价附近。'},
+];
+function renderLevels(){
+  const rows = stocks.map(s=>{ const t=score(s).total; return {s, t, l:levels(s, t)}; })
+                     .sort((a,b)=>b.t-a.t);
+  document.getElementById('lvSub').textContent =
+    rows.length + ' 只 · 支撑/压力来自 150 日前复权日K · 综合分修正 · 非投资建议';
+
+  document.getElementById('lvHow').innerHTML = LV_BANDS.map(b=>
+    gcard('综合分 '+b.k + '　买入 '+b.kb+' / 卖出 '+b.ks, b.d)).join('');
+
+  const withLv = rows.filter(r=>r.l);
+  document.getElementById('lvCap').innerHTML = withLv.length
+    ? '共 '+withLv.length+' 只有K线推导数据。价格为<b>前复权</b>口径；「支撑依据 / 压力依据」标出该价位取自哪条技术线。'
+    : '当前列表中没有可推导K线的标的。';
+
+  let h = '<thead><tr>'
+    + ['标的','现价','买入参考价','距买入','卖出参考价','距卖出','止损参考','盈亏比','支撑依据','压力依据','状态']
+      .map(x=>'<th>'+x+'</th>').join('') + '</tr></thead><tbody>';
+  rows.forEach(r=>{
+    const s=r.s, l=r.l, v=verdict(r.t);
+    if(!l){
+      h += '<tr class="dim"><td><span class="nm">'+s.name+'</span><span class="cd">'+(s.code||'')+'</span></td>'
+        + '<td class="mono">'+fnum(s.price)+'</td><td colspan="9" style="text-align:left;color:#6d7783">无K线数据，无法推导价位</td></tr>';
+      return;
+    }
+    const z = zoneLabel(l);
+    const buyT  = l.buyPct  >= -0.005 ? '<span style="color:#a07b3c">现价即买入位</span>' : '<span style="color:#2c4f6e">'+sgn(l.buyPct,2)+'%</span>';
+    const sellT = l.sellPct <=  0.005 ? '<span style="color:#a07b3c">现价即卖出位</span>' : '<span style="color:#b5622e">'+sgn(l.sellPct,2)+'%</span>';
+    h += '<tr>'
+      + '<td><span class="nm">'+s.name+'</span><span class="cd">'+(s.code||'')+(l.rough?' · <span class="chip">粗估</span>':'')+'</span></td>'
+      + '<td class="mono">'+fnum(s.price)+'</td>'
+      + '<td class="mono"><b>'+fnum(l.buy)+'</b></td>'
+      + '<td class="mono">'+buyT+'</td>'
+      + '<td class="mono"><b>'+fnum(l.sell)+'</b></td>'
+      + '<td class="mono">'+sellT+'</td>'
+      + '<td class="mono" style="color:#8a5a5a">'+fnum(l.stop)+'</td>'
+      + '<td class="mono">'+(l.rr>0?sgn(l.rr,1)+'%':'—')+'</td>'
+      + '<td style="text-align:left;color:#6d7783;font-size:11.5px">'+l.supSrc+' '+fnum(l.sup)+'</td>'
+      + '<td style="text-align:left;color:#6d7783;font-size:11.5px">'+(l.res==null?'上方无压力':l.resSrc+' '+fnum(l.res))+'</td>'
+      + '<td style="text-align:left"><span class="badge '+z.cls+'">'+z.label+'</span><!-- '+v.label+' --></td>'
+      + '</tr>';
+  });
+  h += '</tbody>';
+  document.getElementById('lvTbl').innerHTML = h;
+
+  // 结论文案
+  const inBuy  = withLv.filter(r=>r.l.zone==='buy');
+  const inSell = withLv.filter(r=>r.l.zone==='sell');
+  const hold   = withLv.filter(r=>r.l.zone==='hold');
+  let txt = '';
+  txt += '<p style="margin-bottom:10px"><b>现价已在买入区：</b>'
+    + (inBuy.length ? inBuy.map(r=>r.s.name+'（'+fnum(r.l.buy)+'）').join('、') : '无')
+    + '　·　<b>现价已在卖出区：</b>'
+    + (inSell.length ? inSell.map(r=>r.s.name+'（'+fnum(r.l.sell)+'）').join('、') : '无')
+    + '　·　<b>位于区间中部：</b>'
+    + (hold.length ? hold.map(r=>r.s.name).join('、') : '无') + '。</p>';
+
+  if(inSell.length || inBuy.length){
+    txt += '<p style="margin-bottom:10px">';
+    if(inSell.length) txt += '<b>已在卖出区不等于必须今天卖。</b>它表示「现价已经打到模型算出的最近压力位」，'
+      + '配合上方的综合分判断一起看更稳：如果这只标的本身评分也偏低（如 '+inSell.map(r=>r.s.name).join('、')+'），'
+      + '那么「已有浮盈 + 评分不高」同时成立，减仓的性价比会明显高于继续持有；如果评分很高却仍落在卖出区，通常只是短期涨太快，'
+      + '可以先不定量、等回踩再看。<br>';
+    if(inBuy.length) txt += '<b>已在买入区也不等于必须今天买。</b>它表示「现价已贴近模型算出的最近支撑位」，'
+      + '适合用来分批建仓而不是一次满仓，并且一定要同时设好止损参考价——支撑位被有效跌破，说明这条逻辑本身失效了。';
+    txt += '</p>';
+  }
+
+  const wide = withLv.slice().sort((a,b)=>b.l.rr-a.l.rr);
+  if(wide.length){
+    const w1 = wide[0], w2 = wide[wide.length-1];
+    txt += '<p style="margin-bottom:10px"><b>盈亏比空间最大的是 '+w1.s.name+'</b>（买入 '+fnum(w1.l.buy)+' → 卖出 '+fnum(w1.l.sell)
+      + '，区间宽度 '+sgn(w1.l.rr,1)+'% 的现价）；<b>最窄的是 '+w2.s.name+'</b>（'+sgn(w2.l.rr,1)+'%）。'
+      + '区间窄说明「支撑与压力贴得很近」，这种形态下即使方向看对，空间也有限，不值得压重仓。</p>';
+  }
+
+  txt += '<p style="color:#6d7783">公式与修正系数见本节开头三张卡，全部公开可复核。'
+    + '<b>这些价位会随你的仓位、评分口径和是否新增标的实时重算</b>——但它们不会随行情自动刷新，页面里的K线截止 2026-09-14。</p>';
+  document.getElementById('lvComment').innerHTML = txt;
+}
+
+/* =======================================================================
+   补仓候选池 · 量化筛选
+   ======================================================================= */
+const FILTER_SPEC = [
+  {k:'pepMax',  label:'PE 五年分位上限',        unit:'%', def:45,   step:5,    min:0,    max:100, empty:100},
+  {k:'roeMin',  label:'ROE 下限',               unit:'%', def:12,   step:1,    min:-20,  max:60,  empty:-999},
+  {k:'debtMax', label:'资产负债率上限',         unit:'%', def:70,   step:5,    min:0,    max:100, empty:100},
+  {k:'npMin',   label:'归母净利同比下限',       unit:'%', def:0,    step:5,    min:-100, max:300, empty:-999},
+  {k:'corrMax', label:'与持仓平均相关性上限',   unit:'',  def:0.35, step:0.05, min:-1,   max:1,   empty:1},
+];
+const TOG_SPEC = [
+  {k:'excludeLoss', label:'排除亏损股',              def:true},
+  {k:'excludeHeld', label:'排除已持仓',              def:true},
+  {k:'requireFlow', label:'仅看 20 日主力净流入',    def:false},
+];
+let F = defaultFilters();
+function defaultFilters(){
+  const o = {};
+  FILTER_SPEC.forEach(f=>o[f.k]=f.def);
+  TOG_SPEC.forEach(t=>o[t.k]=t.def);
+  return o;
+}
+function resetFilters(){ F = defaultFilters(); renderPool(); toast('已恢复默认阈值'); }
+function presetDefensive(){
+  F = Object.assign(defaultFilters(), {pepMax:40, roeMin:12, debtMax:65, npMin:0, corrMax:0.30});
+  renderPool(); toast('预设：低波防守口径');
+}
+function presetGrowth(){
+  F = Object.assign(defaultFilters(), {pepMax:35, roeMin:15, debtMax:70, npMin:15, corrMax:0.45});
+  renderPool(); toast('预设：低估成长口径');
+}
+function setF(k, v){
+  const spec = FILTER_SPEC.filter(x=>x.k===k)[0];
+  const n = parseFloat(v);
+  F[k] = (v===''||isNaN(n)) ? spec.empty : n;
+  renderPool();
+}
+function setT(k, v){ F[k] = v; renderPool(); }
+
+/* 质地分：与持仓同一套五维模型（估值/质量/成长/资金/技术），衡量「这只票本身好不好」 */
+function poolBase(s){
+  const pep = (s.pep==null||isNaN(s.pep))?50:s.pep;
+  const val = s.loss ? 0 : clamp(100-pep,0,100);
+  const qual = s.fin
+    ? 0.60*norm(s.roe,0,25)+0.40*norm(s.npm,0,50)
+    : 0.50*norm(s.roe,0,35)+0.25*norm(s.npm,0,30)+0.25*(100-norm(s.debt,0,75));
+  const grow = 0.60*clamp(50+(s.np||0)*1.2,0,100)+0.40*clamp(50+(s.rev||0)*1.5,0,100);
+  const fund = 100-clamp((-(s.flow||0))/60*100,0,100);
+  const tech = clamp(50+(s.maDev||0)*3+((s.rsi6||45)-45)*0.4,0,100);
+  return 0.30*val+0.24*qual+0.26*grow+0.12*fund+0.08*tech;
+}
+/* 适配分：衡量「它能否补上现有组合的缺口」——低相关 + 低负债/高股息 */
+function poolFit(s){
+  const c = (s.corrAvg==null)?0:s.corrAvg;
+  const corrScore = clamp(100-(c+0.3)/0.9*100,0,100);
+  const defScore = s.fin ? norm(s.dy,0,5) : 0.5*(100-norm(s.debt,0,75))+0.5*norm(s.dy,0,5);
+  return 0.60*corrScore+0.40*defScore;
+}
+function poolMatch(s){ return Math.round((0.55*poolBase(s)+0.45*poolFit(s))*10)/10; }
+
+function poolFail(s){
+  const r = [];
+  if(F.excludeLoss && s.loss) r.push('亏损');
+  if(F.excludeHeld && stocks.some(x=>x.name===s.name)) r.push('已持仓');
+  if(s.pep==null){ if(!s.loss) r.push('估值数据缺失'); }
+  else if(s.pep > F.pepMax) r.push('PE 分位 '+fnum(s.pep,1)+'%');
+  if((s.roe==null?-999:s.roe) < F.roeMin) r.push('ROE '+fnum(s.roe,1)+'%');
+  if(!s.fin && (s.debt||0) > F.debtMax) r.push('负债率 '+fnum(s.debt,1)+'%');
+  if((s.np==null?-999:s.np) < F.npMin) r.push('净利 '+sgn(s.np,1)+'%');
+  if(s.corrAvg!=null && s.corrAvg > F.corrMax) r.push('相关性 '+s.corrAvg.toFixed(2));
+  if(F.requireFlow && !((s.flow||0)>0)) r.push('资金非净流入');
+  return r;
+}
+
+function renderGaps(){
+  const hs = stocks, n = hs.length || 1;
+  const tw = hs.reduce((a,b)=>a+(+b.weight||0),0) || 1;
+  const below = hs.filter(s=>s.maDev!=null && s.maDev<0).length;
+  const avgDy = hs.reduce((a,b)=>a+(+b.dy||0),0)/n;
+  const hiLev = hs.filter(s=>(+s.debt||0)>=60 && !s.fin);
+  const hiW = hiLev.reduce((a,b)=>a+(+b.weight||0),0)/tw;
+  const defInd = hs.filter(s=>['公用事业','银行','保险','通信运营'].indexOf(s.ind)>=0).length;
+  const pass = POOL.filter(p=>poolFail(p).length===0);
+  const newInds = [];
+  pass.forEach(p=>{ if(!hs.some(s=>s.ind===p.ind) && newInds.indexOf(p.ind)<0) newInds.push(p.ind); });
+
+  document.getElementById('gapCards').innerHTML = [
+    gcard('缺口一 · 防守资产缺位',
+      '当前 '+n+' 只里 <b>'+below+' 只跌破 20 日线</b>，平均股息率仅 <b>'+avgDy.toFixed(2)+'%</b>，'
+      + (defInd? '低波类（公用事业/金融/通信）只有 '+defInd+' 只。' : '且<b>没有一只是公用事业、金融或通信等高股息低波类型</b>。')
+      + '组合的下行缓冲完全依赖个股自身质地，一旦系统性回撤，没有东西能顶住。'),
+    gcard('缺口二 · 杠杆集中在制造',
+      '负债率 ≥60% 的有 <b>'+(hiLev.map(s=>s.name).join('、')||'无')+'</b>，合计占 <b>'+Math.round(hiW*100)+'%</b>。'
+      + '这三只同属重资产制造链，景气或融资环境一收紧，回撤会被杠杆放大——需要往低负债资产上挪。'),
+    gcard('缺口三 · 候选池能补什么',
+      pass.length
+        ? '按当前阈值，样本池里有 <b>'+pass.length+' 只</b>通过，可覆盖 <b>'+newInds.length+' 个新行业</b>'
+          + (newInds.length? '（'+newInds.join('、')+'）' : '')+'。'
+        : '<b>当前阈值下样本池无一通过</b>——说明你的口径偏严（这不是坏事），可放宽某项阈值看边界标的。')
+  ].join('');
+}
+function gcard(t, d){ return '<div class="gap"><div class="gt">'+t+'</div><div class="gd">'+d+'</div></div>'; }
+
+function renderFilters(){
+  document.getElementById('filterBox').innerHTML = FILTER_SPEC.map(f=>
+    '<label><span>'+f.label+(f.unit? '（'+f.unit+'）':'')+'</span>'
+    + '<input type="number" step="'+f.step+'" min="'+f.min+'" max="'+f.max+'" value="'+F[f.k]+'" oninput="setF(\''+f.k+'\', this.value)"></label>'
+  ).join('');
+  document.getElementById('togBox').innerHTML = TOG_SPEC.map(t=>
+    '<label><input type="checkbox" '+(F[t.k]?'checked':'')+' onchange="setT(\''+t.k+'\', this.checked)"><span>'+t.label+'</span></label>'
+  ).join('');
+}
+
+function renderPool(){
+  if(!document.getElementById('filterBox').dataset.done){
+    renderFilters();
+    document.getElementById('filterBox').dataset.done = '1';
+  }
+  renderGaps();
+
+  const rows = POOL.map(p=>{
+    const f = poolFail(p), b = poolBase(p), fit = poolFit(p), m = poolMatch(p);
+    const heldAlready = stocks.some(x=>x.name===p.name);
+    return {p, f, b, fit, m, lv:levels(p, b), pass:f.length===0, heldAlready};
+  });
+  rows.sort((a,b)=> (b.pass-a.pass) || (b.m-a.m));
+
+  const nPass = rows.filter(r=>r.pass).length;
+  document.getElementById('poolCnt').textContent = '通过 '+nPass+' / '+POOL.length+' 只 · 按匹配分排序';
+  document.getElementById('poolSub').textContent = POOL.length+' 只跨行业样本池 · 按阈值机械筛选 · 非投资建议';
+  document.getElementById('filterHint').innerHTML =
+    '匹配分 = 质地分 × 0.55 + 适配分 × 0.45。质地分沿用与持仓相同的五维模型；适配分 = 低相关性 60% + 防御属性 40%（防御属性取「低负债 + 高股息」）。'
+    + '当前阈值下 <b>'+nPass+'</b> 只通过。金融股的资产负债率为行业口径，已豁免低负债要求。'
+    + '「买入价 / 卖出价」由 150 日前复权日K的<b>最近支撑 / 最近压力</b>叠加质地分修正得到，规则与上方「买卖参考价」板块完全一致。';
+
+  let h = '<thead><tr>'
+    + ['标的','行业','今日','PE','PE分位','ROE','净利同比','负债率','股息率','20日资金','相关性','买入价','卖出价','质地分','适配分','匹配分','状态']
+      .map(x=>'<th>'+x+'</th>').join('') + '</tr></thead><tbody>';
+  rows.forEach(r=>{
+    const p = r.p;
+    h += '<tr'+(r.pass?'':' class="dim"')+'>'
+      + '<td><span class="nm">'+p.name+'</span><span class="cd">'+p.code+'</span></td>'
+      + '<td style="text-align:left;color:#6d7783">'+p.ind+'</td>'
+      + '<td class="mono '+cls(p.chg)+'">'+sgn(p.chg)+'%</td>'
+      + '<td class="mono">'+(p.pe==null?'—':fnum(p.pe))+'</td>'
+      + '<td class="mono">'+(p.pep==null?'—':fnum(p.pep,1)+'%')+'</td>'
+      + '<td class="mono">'+(p.roe==null?'—':fnum(p.roe,1)+'%')+'</td>'
+      + '<td class="mono '+cls(p.np)+'">'+(p.np==null?'—':sgn(p.np,1)+'%')+'</td>'
+      + '<td class="mono">'+(p.fin?'—':fnum(p.debt,1)+'%')+'</td>'
+      + '<td class="mono">'+(p.dy==null?'—':fnum(p.dy)+'%')+'</td>'
+      + '<td class="mono '+cls(p.flow)+'">'+sgn(p.flow)+'</td>'
+      + '<td class="mono">'+(p.corrAvg==null?'—':p.corrAvg.toFixed(2))+'</td>'
+      + '<td class="mono" style="color:#2c4f6e">'+(r.lv==null?'—':fnum(r.lv.buy))+'</td>'
+      + '<td class="mono" style="color:#b5622e">'+(r.lv==null?'—':fnum(r.lv.sell))+'</td>'
+      + '<td class="mono">'+Math.round(r.b)+'</td>'
+      + '<td class="mono">'+Math.round(r.fit)+'</td>'
+      + '<td class="mono"><b>'+r.m+'</b></td>'
+      + '<td style="text-align:left">'
+      + (r.pass
+          ? (r.heldAlready ? '<span class="badge b-keep">已在列表</span>'
+                           : '<button class="btn" style="padding:3px 10px;font-size:11.5px" onclick="addPoolStock(\''+p.sym+'\')">加入体检</button>')
+          : '<span class="chip">'+r.f.join('</span><span class="chip">')+'</span>')
+      + '</td></tr>';
+  });
+  h += '</tbody>';
+  document.getElementById('poolTbl').innerHTML = h;
+
+  // 结果解读
+  const pass = rows.filter(r=>r.pass);
+  let txt = '';
+  if(pass.length){
+    txt += '<p style="margin-bottom:10px"><b>通过阈值的 '+pass.length+' 只（按匹配分）：</b>'
+      + pass.map(r=>r.p.name+' <span class="mono">'+r.m+'</span>（质地 '+Math.round(r.b)+'／适配 '+Math.round(r.fit)+'）').join('　·　') + '。</p>';
+    const lowCorr = pass.filter(r=>r.p.corrAvg<0).map(r=>r.p.name);
+    const hiDy = pass.filter(r=>(r.p.dy||0)>=4).map(r=>r.p.name);
+    const hiGrow = pass.filter(r=>(r.p.np||0)>=20).map(r=>r.p.name);
+    txt += '<p style="margin-bottom:10px"><b>三类用途可以分开看：</b>';
+    txt += '<b>当压舱石</b>（低相关，能对冲现有波动）→ ' + (lowCorr.length?lowCorr.join('、'):'本次无') + '；';
+    txt += '<b>当现金流补充</b>（股息率 ≥4%）→ ' + (hiDy.length?hiDy.join('、'):'本次无') + '；';
+    txt += '<b>当成长补充</b>（净利同比 ≥20%）→ ' + (hiGrow.length?hiGrow.join('、'):'本次无') + '。</p>';
+    const best = pass[0];
+    txt += '<p><b>排序第一名是 '+best.p.name+'</b>：质地分 '+Math.round(best.b)+'、适配分 '+Math.round(best.fit)+'。'
+      + (best.fit>best.b ? '它的高分主要来自<b>适配性</b>（与原持仓相关性 '+best.p.corrAvg.toFixed(2)+'、'+((best.p.dy||0)>=4?'股息率 '+fnum(best.p.dy)+'%':'负债率 '+fnum(best.p.debt,1)+'%')+'），属于「补组合短板」型，而不是「自身爆发力强」型。'
+                         : '它的高分主要来自<b>自身质地</b>，属于「标的本身强」型；适配性相对一般，加入后对组合波动的改善有限。')
+      + '</p>';
+  } else {
+    txt += '<p>当前阈值下没有标的通过。可以试试放宽「PE 五年分位上限」或「相关性上限」，或关掉「仅看 20 日主力净流入」——上一行标注的未通过原因就是各自的卡点。</p>';
+  }
+  txt += '<p style="margin-top:10px;color:#6d7783">提醒：通过阈值只代表<b>在你这套口径下没有明显硬伤</b>，不等于可以买。上表不含治理、商誉、政策、诉讼等定性风险，也不含你的资金期限与回撤承受度——这些只能你自己判断。</p>';
+  document.getElementById('poolComment').innerHTML = txt;
+}
+
+function addPoolStock(sym){
+  const p = POOL.filter(x=>x.sym===sym)[0];
+  if(!p) return;
+  if(stocks.some(s=>s.name===p.name)){ toast('「'+p.name+'」已在体检列表中'); return; }
+  const m = poolMatch(p);
+  const obj = {
+    name:p.name, code:p.code, sym:p.sym, ind:p.ind, price:p.price, chg:p.chg, m1:p.m1,
+    pe:p.pe, pep:p.pep, pb:p.pb, pbp:p.pbp, dy:p.dy, roe:p.roe, npm:p.npm, gpm:p.gpm,
+    rev:p.rev, np:p.np, debt:p.debt, flow:p.flow, rsi6:p.rsi6, maDev:p.maDev,
+    weight:20, custom:true, fin:p.fin
+  };
+  const sc = score(obj), v = verdict(sc.total);
+  const dims = [['估值',sc.val],['质量',sc.qual],['成长',sc.grow],['资金',sc.fund],['技术',sc.tech]].sort((a,b)=>a[1]-b[1]);
+  obj.note = '来自补仓候选池（匹配分 '+m+'，与本组合平均相关性 '+(p.corrAvg==null?'—':p.corrAvg.toFixed(2))+'）。'
+    + '纳入本页统一模型后综合分 <b>'+sc.total+'</b>，判定「'+v.label+'」。相对优势：'+dims[dims.length-1][0]+' '+Math.round(dims[dims.length-1][1])+' 分；'
+    + '主要短板：'+dims[0][0]+' '+Math.round(dims[0][1])+' 分。加入后组合的行业分布、相关性矩阵与加权指标会同步重算——注意相关性矩阵只覆盖初始五只，新标的显示为「—」。';
+  stocks.push(obj);
+  render();
+  toast('已把「'+p.name+'」加入体检 · 综合分 '+sc.total);
+}
+
+
+/* =======================================================================
+   添加标的
+   ======================================================================= */
+function openModal(){ document.getElementById('mask').classList.add('on'); document.getElementById('f_name').focus(); }
+function closeModal(){ document.getElementById('mask').classList.remove('on'); }
+document.getElementById('mask').addEventListener('click',e=>{ if(e.target.id==='mask') closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+const gv = id=>{ const v=document.getElementById(id).value.trim(); return v===''?null:+v; };
+
+function submitStock(){
+  const name = document.getElementById('f_name').value.trim();
+  if(!name){ toast('请至少填写标的名称'); document.getElementById('f_name').focus(); return; }
+  if(stocks.some(s=>s.name===name)){ toast('「'+name+'」已在体检列表中'); return; }
+  const num = (id,def)=>{ const v=gv(id); return v===null?(def===undefined?null:def):(isNaN(v)?null:v); };
+  const pe = num('f_pe'), pepRaw = num('f_pep');
+  const pep = (pepRaw===null && pe!==null) ? 50 : pepRaw;
+  const s = {
+    name, code: document.getElementById('f_code').value.trim() || '—',
+    ind: document.getElementById('f_ind').value.trim() || '其他',
+    price: num('f_price', 0), chg: num('f_chg', 0), m1: num('f_m1', 0),
+    pe: (pe===null?0:pe), pep: (pep===null?50:pep),
+    pb: num('f_pb', 0), pbp: num('f_pbp', 50),
+    dy: num('f_dy', 0), roe: num('f_roe', 0), npm: num('f_npm', 0), gpm: num('f_gpm', 0),
+    rev: num('f_rev', 0), np: num('f_np', 0), debt: num('f_debt', 0),
+    flow: num('f_flow', 0), rsi6: num('f_rsi', 45),
+    maDev: num('f_ma', 0),
+    weight: num('f_w', 20)===null?20:num('f_w',20),
+    custom: true,
+    note: ''
+  };
+  const sc = score(s), v = verdict(sc.total);
+  const dims=[['估值',sc.val],['质量',sc.qual],['成长',sc.grow],['资金',sc.fund],['技术',sc.tech]].sort((a,b)=>a[1]-b[1]);
+  s.note = '自定义标的（统一口径评分 '+sc.total+'，判定「'+v.label+'」）。相对优势：'+dims[dims.length-1][0]+' '+Math.round(dims[dims.length-1][1])+' 分；'
+    + '主要短板：'+dims[0][0]+' '+Math.round(dims[0][1])+' 分、'+dims[1][0]+' '+Math.round(dims[1][1])+' 分。'
+    + '数值由你手工录入，评分仅供横向量化参考，请自行核实数据准确性。';
+  stocks.push(s);
+  // 清空表单
+  ['f_name','f_code','f_ind','f_price','f_chg','f_m1','f_dy','f_pe','f_pep','f_pb','f_pbp','f_roe','f_npm','f_gpm','f_debt','f_rev','f_np','f_flow','f_rsi','f_ma'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_w').value = 20;
+  closeModal();
+  render();
+  toast('已加入「'+name+'」，综合分 '+sc.total+' · '+v.label);
+}
+
+/* ---------- toast ---------- */
+let tmr=null;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(tmr); tmr=setTimeout(()=>t.classList.remove('on'),2200);
+}
+
+render();
+</script>
+</body>
+</html>
