@@ -85,8 +85,8 @@ tbody tr:hover td:first-child{background:#fbfcfd}
 tbody tr:last-child td{border-bottom:none}
 .nm{font-weight:600}
 .cd{font-size:10.5px;color:var(--faint);font-weight:400;margin-left:5px}
-td input.w{width:52px;padding:3px 5px;text-align:right;border:1px solid var(--line);border-radius:5px;font:inherit;font-size:12px;background:#fcfdfe}
-td input.w:focus{outline:none;border-color:var(--accent2);background:#fff}
+input.w{width:52px;padding:3px 5px;text-align:right;border:1px solid var(--line);border-radius:5px;font:inherit;font-size:12px;background:#fcfdfe}
+input.w:focus{outline:none;border-color:var(--accent2);background:#fff}
 .badge{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:500;line-height:1.6}
 .b-keep{background:#eef2f6;color:#2c4f6e}
 .b-watch{background:#f8f4ec;color:#a07b3c}
@@ -193,6 +193,52 @@ tbody tr.dim .nm{color:#6d7783}
 .lvc .v{font-size:13px;font-weight:600;line-height:1.2}
 .lvc .v .d{font-size:10.5px;font-weight:400;opacity:.75;margin-left:3px}
 
+/* ---------- 顶部导航（粘性） ---------- */
+.navsticky{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);margin:-26px 0 26px}
+.navrow{max-width:1120px;margin:0 auto;padding:9px 20px;display:flex;gap:6px;overflow-x:auto;align-items:center;scrollbar-width:none}
+.navrow::-webkit-scrollbar{display:none}
+.navbtn{flex:0 0 auto;font:inherit;font-size:12.5px;padding:5px 12px;border-radius:16px;border:1px solid var(--line);background:#fff;color:#48525e;cursor:pointer;white-space:nowrap;transition:.15s}
+.navbtn:hover{border-color:var(--accent2);color:var(--accent)}
+.navbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+section{scroll-margin-top:62px}
+
+/* ---------- 多选筛选 ---------- */
+.fchips{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.flab{font-size:11.5px;color:var(--faint);letter-spacing:.04em;margin-right:2px;flex:0 0 auto}
+.fchip{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 11px;border-radius:14px;border:1px solid var(--line);background:#fff;color:#48525e;cursor:pointer;user-select:none;transition:.15s}
+.fchip:hover{border-color:var(--accent2);color:var(--accent)}
+.fchip.on{background:#eef2f6;border-color:#b9cbdb;color:var(--accent);font-weight:600}
+.fchip .n{font-size:10.5px;color:var(--faint);font-weight:400}
+.fchip.on .n{color:var(--accent2)}
+.fbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line2);flex-wrap:wrap}
+.fres{font-size:12.5px;color:var(--sub)}
+.fres b{color:var(--text)}
+
+/* ---------- 买入 / 卖出价醒目价签 ---------- */
+.pill{display:inline-block;padding:2px 9px;border-radius:6px;font-weight:700;font-size:12.5px;font-variant-numeric:tabular-nums}
+.pill.buy{background:#eef2f6;color:#23415c;border:1px solid #cfdde9}
+.pill.sell{background:#fbf0ea;color:#8f4a1c;border:1px solid #ecd6c6}
+.pill.na{background:#f6f7f9;color:#98a1ac;font-weight:500;border:1px solid var(--line)}
+
+/* ---------- 持仓池卡片 ---------- */
+.hpcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:15px 18px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:14px 18px;align-items:center;transition:.15s}
+.hpcard:hover{border-color:#d6dee6;box-shadow:0 2px 10px rgba(30,40,50,.04)}
+.hpl .t{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.hpl .t h3{font-size:15.5px;font-weight:600}
+.hpkv{display:flex;gap:8px 16px;flex-wrap:wrap;margin-top:9px;font-size:12px;color:var(--sub)}
+.hpkv b{color:var(--text);font-weight:600}
+.hpr{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pricebox{display:flex;gap:10px}
+.pcell{min-width:118px;border-radius:9px;padding:9px 13px;text-align:center}
+.pcell .k{font-size:11px;opacity:.85;margin-bottom:1px}
+.pcell .v{font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.25}
+.pcell .d{font-size:10.5px;opacity:.85;margin-top:2px}
+.pcell.buy{background:#eef2f6;color:#23415c;border:1px solid #cddbe7}
+.pcell.sell{background:#fbf0ea;color:#8f4a1c;border:1px solid #ecd6c6}
+.pcell.na{background:#f6f7f9;color:#98a1ac;border:1px solid var(--line)}
+.hpact{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+@media (max-width:760px){ .hpcard{grid-template-columns:1fr} .pcell{min-width:0;flex:1} }
+
 @media (max-width:900px){
   .grid2,.grid3,.grid5,.filters{grid-template-columns:1fr}
   .kv,.frow,.frow.c3{grid-template-columns:repeat(2,1fr)}
@@ -220,10 +266,12 @@ tbody tr.dim .nm{color:#6d7783}
   </div>
 </div>
 
+<nav class="navsticky"><div class="navrow" id="navRow"></div></nav>
+
 <div class="wrap">
 
   <!-- ============ 结论 ============ -->
-  <section>
+  <section id="s-concl">
     <div class="hero">
       <h3>最该砍的是 <em>比亚迪</em>；同时 <em>立讯精密</em> 已到该减仓止盈的位置。</h3>
       <p><strong>比亚迪是五只里唯一「基本面、杠杆、技术」三项同时垫底的</strong>：2025 年归母净利同比 <span class="up">−19.0%</span>，2026 年中报净利率进一步压到 <strong>3.58%</strong>；资产负债率 <strong>70.7%</strong>、流动比率 <strong>0.87</strong>（五只里唯一低于 1，短期偿债最紧）；20 日主力净流出 23.4 亿，股价站在 20 日线下方。逻辑和价格双弱，是组合里机会成本最高的一只。</p>
@@ -235,20 +283,47 @@ tbody tr.dim .nm{color:#6d7783}
   </section>
 
   <!-- ============ 分层 ============ -->
-  <section>
+  <section id="s-tier">
     <div class="shead"><h2>组合分层：谁是核心，谁是拖累</h2><span class="sub">按综合分动态分层</span></div>
     <div class="grid3" id="tiers"></div>
   </section>
 
   <!-- ============ 总览表 ============ -->
-  <section>
-    <div class="shead"><h2>五只总览（一表看全）</h2><span class="sub">涨红跌绿 · 单位：元 / % / 亿元</span></div>
+  <section id="s-ov">
+    <div class="shead"><h2>五只总览（一表看全）</h2><span class="sub" id="ovSub">涨红跌绿 · 单位：元 / % / 亿元</span></div>
     <div class="tblwrap"><table id="ovTbl"></table></div>
     <div class="note">近 1 月 = 2026-08-11 至 2026-09-14 区间涨跌幅；主力资金为 20 日累计净流入（亿元），负值为净流出。估值分位为 5 年历史分位。财务为 2025 年报（比亚迪负债率同口径 2025 年报 70.7%，2026 中报为 70.96%）。「仓位」可编辑，用于下方组合测算。「买入参考价 / 卖出参考价」为模型推导值，公式与修正系数见下方「买卖参考价」板块，<b>非投资建议</b>。</div>
   </section>
 
+  <!-- ============ 持仓池 ============ -->
+  <section id="s-hold">
+    <div class="shead"><h2>持仓池 · 可增可减</h2><span class="sub" id="holdSub">管理你的持仓 · 买入 / 卖出参考价重点标注</span></div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap">
+        <div>
+          <h4 style="font-size:13.5px;font-weight:600">筛选持仓（可多选）</h4>
+          <div class="cap" style="font-size:12px;color:var(--faint);margin-top:2px">同一组内多个标签之间是「或」，不同组之间是「且」。筛选只作用于总览表 / 逐只体检 / 优先级 / 持仓池，不影响组合层面的全量测算。</div>
+        </div>
+        <div class="bar-actions">
+          <button class="btn pri-btn" onclick="openModal()">+ 添加标的</button>
+          <button class="btn" onclick="resetAll()">恢复初始五只</button>
+        </div>
+      </div>
+      <div id="holdFilter" style="margin-top:16px"></div>
+    </div>
+
+    <div id="quickAdd" class="card" style="margin-bottom:16px;padding:14px 18px"></div>
+
+    <div id="holdPool"></div>
+
+    <div class="disc" style="margin-top:16px">
+      <b>这里的买入 / 卖出价怎么来的：</b>由 150 日前复权日K的<b>最近支撑 / 最近压力</b>叠加本页综合分修正得到，规则与下方「买卖参考价 · 模型推导」板块完全一致，<b>非投资建议</b>。买入价已截断为不超过现价、卖出价不低于现价，因此出现「现价即买入位」是正常结果，不代表数据缺失。
+    </div>
+  </section>
+
   <!-- ============ 图表 ============ -->
-  <section>
+  <section id="s-chart">
     <div class="shead"><h2>性价比：增长 vs 估值位置</h2><span class="sub">横轴=归母净利同比 · 纵轴=PE 五年分位</span></div>
     <div class="chartbox">
       <div class="cap">右下角最香（高增长 + 低估），左上角最贵（负增长 + 高估）。宁德、恒瑞落在右下；比亚迪独自偏左；立讯在纵轴上位置最高。</div>
@@ -271,7 +346,7 @@ tbody tr.dim .nm{color:#6d7783}
     </div>
   </section>
 
-  <section>
+  <section id="s-score">
     <div class="shead"><h2>五维量化评分</h2><span class="sub">估值 / 质量 / 成长 / 资金 / 技术（0–100）</span></div>
     <div class="chartbox">
       <div class="cap">统一口径的横向比较分，绿色越深代表该维度越强。<b>注意跨行业不完全可比</b>：制造业天然毛利率低、负债率高，宁德、立讯的「质量分」会被系统性压低，不应单独解读。</div>
@@ -281,13 +356,13 @@ tbody tr.dim .nm{color:#6d7783}
   </section>
 
   <!-- ============ 逐只体检 ============ -->
-  <section>
+  <section id="s-cards">
     <div class="shead"><h2>逐只体检</h2><span class="sub">估值贵不贵 · 基本面质量 · 主力资金 · 技术位置 → 保留 / 减仓判断</span></div>
     <div id="cards"></div>
   </section>
 
   <!-- ============ 买卖参考价 ============ -->
-  <section>
+  <section id="s-levels">
     <div class="shead"><h2>买卖参考价 · 模型推导</h2><span class="sub" id="lvSub">按最近支撑 / 最近压力 + 综合分修正</span></div>
 
     <div class="grid3" id="lvHow" style="margin-bottom:16px"></div>
@@ -315,7 +390,7 @@ tbody tr.dim .nm{color:#6d7783}
   </section>
 
   <!-- ============ 组合视角 ============ -->
-  <section>
+  <section id="s-port">
     <div class="shead"><h2>组合视角：不只是五只散票</h2><span class="sub">按当前仓位权重测算</span></div>
     <div class="grid2" style="margin-bottom:16px">
       <div class="chartbox">
@@ -341,14 +416,14 @@ tbody tr.dim .nm{color:#6d7783}
   </section>
 
   <!-- ============ 优先级 ============ -->
-  <section>
+  <section id="s-pri">
     <div class="shead"><h2>加减仓优先级</h2><span class="sub">按综合分从高到低排序</span></div>
     <ol class="pri" id="priList"></ol>
   </section>
 
-  <!-- ============ 补仓候选池 ============ -->
-  <section>
-    <div class="shead"><h2>补仓候选池 · 量化筛选</h2><span class="sub" id="poolSub">18 只跨行业样本池 · 按阈值机械筛选</span></div>
+  <!-- ============ 自选池（量化筛选） ============ -->
+  <section id="s-pool">
+    <div class="shead"><h2>自选池 · 量化筛选</h2><span class="sub" id="poolSub">18 只跨行业样本池 · 按阈值机械筛选 · 买入/卖出参考价重点标注</span></div>
 
     <div class="grid3" id="gapCards" style="margin-bottom:16px"></div>
 
@@ -386,7 +461,7 @@ tbody tr.dim .nm{color:#6d7783}
   </section>
 
   <!-- ============ 反向提醒 ============ -->
-  <section>
+  <section id="s-risk">
     <div class="shead"><h2>两个容易走偏的地方</h2></div>
     <div class="grid2">
       <div class="card" style="font-size:13px;color:#3d4752;line-height:1.8">
@@ -401,7 +476,7 @@ tbody tr.dim .nm{color:#6d7783}
   </section>
 
   <!-- ============ 免责 ============ -->
-  <section>
+  <section id="s-disc">
     <div class="disc">
       <b>数据来源与口径</b><br>
       行情收盘价 / 今日涨跌幅 / 近 20 日与当日主力资金净流入 / 资产负债口径 / 均线与技术指标：<b>腾讯自选股行情接口（westock-data，2026-09-14 盘中）</b>。<br>
@@ -410,7 +485,7 @@ tbody tr.dim .nm{color:#6d7783}
       <b>免责声明</b>：本页为基于公开数据的多维度量化整理，<b>不构成任何投资建议</b>，也不构成证券投资咨询服务。评分模型为统一口径的机械计算，跨行业可比性有限。买卖决策请结合个人风险承受能力、资金期限与持仓成本，并自行核实关键数据。
     </div>
     <div class="foot" style="margin-top:22px">
-      持仓体检报告 · 生成于 2026-09-14 · 页面完全离线运行，添加的标的数据保存在本机浏览器中。
+      持仓体检报告 · 生成于 2026-09-14 · 页面完全离线运行；持仓池的增删、仓位与筛选条件都保存在本机浏览器中（localStorage），不会上传。
     </div>
   </section>
 
@@ -692,6 +767,7 @@ function render(){
   renderTiers(); renderTable(); renderScatter(); renderFlow(); renderChg();
   renderHeat(); renderScoreBar(); renderCards(); renderLevels(); renderPortfolio(); renderPriority();
   renderPool();
+  renderHoldFilters(); renderQuickAdd(); renderHoldPool();
   save();
 }
 
@@ -726,8 +802,10 @@ function renderTable(){
   const head = ['标的','现价','今日','近1月','PE','PE五年分位','PB','PB五年分位','股息率','ROE','净利率','毛利率',
                 '营收同比','净利同比','资产负债率','20日主力净流入','仓位%','综合分','买入参考价','卖出参考价','判断'];
   let h = '<thead><tr>'+head.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>';
-  const totalW = stocks.reduce((a,b)=>a+(+b.weight||0),0);
+  let shown = 0;
   stocks.forEach((s,i)=>{
+    if(!passFlt(s)) return;
+    shown++;
     const sc = score(s), v = verdict(sc.total);
     const lv = levels(s, sc.total);
     h += '<tr>'
@@ -749,13 +827,18 @@ function renderTable(){
       + '<td class="mono '+cls(s.flow)+'">'+sgn(s.flow)+'</td>'
       + '<td><input class="w" type="number" min="0" step="1" value="'+(s.weight!=null?s.weight:20)+'" oninput="setW('+i+',this.value)"></td>'
       + '<td class="mono"><b>'+sc.total+'</b></td>'
-      + '<td class="mono" style="color:#2c4f6e">'+(lv?fnum(lv.buy):'—')+'</td>'
-      + '<td class="mono" style="color:#b5622e">'+(lv?fnum(lv.sell):'—')+'</td>'
+      + '<td class="mono">'+(lv?'<span class="pill buy">'+fnum(lv.buy)+'</span>':'<span class="pill na">—</span>')+'</td>'
+      + '<td class="mono">'+(lv?'<span class="pill sell">'+fnum(lv.sell)+'</span>':'<span class="pill na">—</span>')+'</td>'
       + '<td><span class="badge '+v.cls+'">'+v.label+'</span></td>'
       + '</tr>';
   });
+  if(!shown) h += '<tr><td colspan="'+head.length+'" style="text-align:left;color:#6d7783">当前筛选下没有标的，请放宽筛选条件或点「清除筛选」。</td></tr>';
   h += '</tbody>';
   document.getElementById('ovTbl').innerHTML = h;
+  const sub = document.getElementById('ovSub');
+  if(sub) sub.textContent = (FLT.v.length||FLT.ind.length)
+    ? '已筛选 '+shown+' / '+stocks.length+' 只 · 点「清除筛选」可恢复全部'
+    : '涨红跌绿 · 单位：元 / % / 亿元';
 }
 function setW(i,v){ stocks[i].weight = Math.max(0,Math.min(100,+v||0)); save(); renderPortfolio(); }
 
@@ -894,7 +977,11 @@ function renderScoreBar(){
 
 /* ---------- 逐只卡片 ---------- */
 function renderCards(){
-  const order = stocks.slice().sort((a,b)=>score(b).total-score(a).total);
+  const order = stocks.filter(passFlt).slice().sort((a,b)=>score(b).total-score(a).total);
+  if(!order.length){
+    document.getElementById('cards').innerHTML = '<div class="card" style="color:#6d7783">当前筛选下没有标的，请放宽筛选条件或点「清除筛选」。</div>';
+    return;
+  }
   document.getElementById('cards').innerHTML = order.map(s=>{
     const sc = score(s), v = verdict(sc.total);
     const pos20 = (s.maDev==null||isNaN(s.maDev))?'—':sgn(s.maDev)+'%';
@@ -907,7 +994,7 @@ function renderCards(){
     +     '<div style="display:flex;align-items:center;gap:12px">'
     +       '<span class="px mono '+cls(s.chg)+'">'+fnum(s.price)+'　'+sgn(s.chg)+'%</span>'
     +       '<span class="badge '+v.cls+'">'+v.label+'</span>'
-    +       (s.custom?'<button class="del" onclick="delStock(\''+s.name+'\')">删除</button>':'')
+    +       '<button class="del" onclick="delStock(\''+s.name+'\')">移除</button>'
     +     '</div>'
     +   '</div>'
     +   '<div class="kv">'
@@ -977,7 +1064,153 @@ function techLabel(s){
 }
 function delStock(name){
   stocks = stocks.filter(s=>s.name!==name);
-  render(); toast('已删除 '+name);
+  render(); toast('已移除 '+name);
+}
+
+/* =======================================================================
+   持仓池 · 多选筛选 · 顶部导航
+   ======================================================================= */
+const FLT = {v:[], ind:[]};
+function passFlt(s){
+  if(FLT.v.length){
+    const lb = verdict(score(s).total).label;
+    if(FLT.v.indexOf(lb) < 0) return false;
+  }
+  if(FLT.ind.length && FLT.ind.indexOf(s.ind||'其他') < 0) return false;
+  return true;
+}
+function toggleFlt(kind, val){
+  const a = FLT[kind];
+  const i = a.indexOf(val);
+  if(i < 0) a.push(val); else a.splice(i,1);
+  render();
+}
+function clearFlt(){ FLT.v = []; FLT.ind = []; render(); toast('已清除筛选'); }
+
+function renderHoldFilters(){
+  const el = document.getElementById('holdFilter');
+  if(!el) return;
+  const cnt = {'保留':0,'观察':0,'减仓':0,'出清':0};
+  stocks.forEach(s=>{ cnt[verdict(score(s).total).label]++; });
+  const inds = [];
+  stocks.forEach(s=>{ const k = s.ind||'其他'; if(inds.indexOf(k)<0) inds.push(k); });
+  inds.sort();
+  const shown = stocks.filter(passFlt).length;
+  let h = '<div class="fchips"><span class="flab">判断</span>'
+    + ['保留','观察','减仓','出清'].map(l=>
+        '<span class="fchip'+(FLT.v.indexOf(l)>=0?' on':'')+'" onclick="toggleFlt(\'v\',\''+l+'\')">'+l
+        + '<span class="n">'+cnt[l]+'</span></span>').join('')
+    + '</div>';
+  h += '<div class="fchips" style="margin-top:9px"><span class="flab">行业</span>'
+    + inds.map(l=>
+        '<span class="fchip'+(FLT.ind.indexOf(l)>=0?' on':'')+'" onclick="toggleFlt(\'ind\',\''+l+'\')">'+l+'</span>').join('')
+    + '</div>';
+  h += '<div class="fbar"><span class="fres">筛选结果 <b>'+shown+'</b> / '+stocks.length+' 只'
+    + ((FLT.v.length||FLT.ind.length)?'（已筛选）':'')+'</span>'
+    + '<button class="btn" style="padding:4px 12px;font-size:12px" onclick="clearFlt()">清除筛选</button></div>';
+  el.innerHTML = h;
+}
+
+function renderQuickAdd(){
+  const el = document.getElementById('quickAdd');
+  if(!el) return;
+  const missing = BASE.filter(b=>!stocks.some(s=>s.name===b.name));
+  let h = '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="flab">一键加入</span>';
+  h += missing.length
+    ? missing.map(b=>'<span class="fchip" onclick="addBase(\''+b.name+'\')">+ '+b.name+'</span>').join('')
+    : '<span style="font-size:12.5px;color:var(--faint)">初始五只已全部在持仓池中。也可以用上方「+ 添加标的」录入任意标的。</span>';
+  h += '</div>';
+  el.innerHTML = h;
+}
+function addBase(name){
+  const b = BASE.filter(x=>x.name===name)[0];
+  if(!b) return;
+  if(stocks.some(s=>s.name===name)){ toast('「'+name+'」已在持仓池中'); return; }
+  stocks.push(Object.assign({}, b, {weight:20, custom:false}));
+  render(); toast('已加入「'+name+'」');
+}
+function setWByName(name, v){
+  const s = stocks.filter(x=>x.name===name)[0];
+  if(!s) return;
+  s.weight = Math.max(0, Math.min(100, +v||0));
+  save(); renderPortfolio();
+}
+
+/* 持仓池卡片：突出买入 / 卖出参考价 */
+function renderHoldPool(){
+  const el = document.getElementById('holdPool');
+  if(!el) return;
+  const sub = document.getElementById('holdSub');
+  if(sub) sub.textContent = stocks.length+' 只持仓 · 可增可减 · 买入 / 卖出参考价重点标注 · 非投资建议';
+  const arr = stocks.filter(passFlt);
+  if(!arr.length){
+    el.innerHTML = '<div class="card" style="color:#6d7783">当前筛选下没有标的，请放宽筛选条件或点「清除筛选」。</div>';
+    return;
+  }
+  el.innerHTML = arr.map(s=>{
+    const sc = score(s), v = verdict(sc.total), l = levels(s, sc.total), z = zoneLabel(l);
+    const buy = l
+      ? '<div class="pcell buy"><div class="k">买入参考价</div><div class="v mono">'+fnum(l.buy)+'</div><div class="d">'
+        + (l.buyPct >= -0.005 ? '现价即买入位' : sgn(l.buyPct,1)+'%') + '</div></div>'
+      : '<div class="pcell na"><div class="k">买入参考价</div><div class="v">—</div><div class="d">无K线数据</div></div>';
+    const sell = l
+      ? '<div class="pcell sell"><div class="k">卖出参考价</div><div class="v mono">'+fnum(l.sell)+'</div><div class="d">'
+        + (l.sellPct <= 0.005 ? '现价即卖出位' : sgn(l.sellPct,1)+'%') + '</div></div>'
+      : '<div class="pcell na"><div class="k">卖出参考价</div><div class="v">—</div><div class="d">无K线数据</div></div>';
+    return '<div class="hpcard">'
+      + '<div class="hpl">'
+      +   '<div class="t"><h3>'+s.name+'</h3><span class="cd">'+(s.code||'')+'</span>'
+      +     '<span class="badge '+v.cls+'">'+v.label+'</span>'
+      +     (l?'<span class="badge '+z.cls+'">'+z.label+'</span>':'<span class="badge b-out">无K线数据</span>')
+      +   '</div>'
+      +   '<div class="hpkv">'
+      +     '<span>现价 <b class="mono '+cls(s.chg)+'">'+fnum(s.price)+'　'+sgn(s.chg)+'%</b></span>'
+      +     '<span>行业 <b>'+(s.ind||'—')+'</b></span>'
+      +     '<span>综合分 <b>'+sc.total+'</b></span>'
+      +     '<span>20日资金 <b class="mono '+cls(s.flow)+'">'+sgn(s.flow)+' 亿</b></span>'
+      +     '<span>止损参考 <b class="mono" style="color:#8a5a5a">'+(l?fnum(l.stop):'—')+'</b></span>'
+      +     (l?'<span>盈亏比 <b>'+(l.rr>0?sgn(l.rr,1)+'%':'—')+'</b></span>':'')
+      +   '</div>'
+      + '</div>'
+      + '<div class="hpr">'
+      +   '<div class="pricebox">'+buy+sell+'</div>'
+      +   '<div class="hpact">'
+      +     '<input class="w" type="number" min="0" step="1" value="'+(s.weight!=null?s.weight:20)+'" oninput="setWByName(\''+s.name+'\',this.value)" title="仓位 %">'
+      +     '<span style="font-size:11.5px;color:var(--faint)">仓位%</span>'
+      +     '<button class="del" onclick="delStock(\''+s.name+'\')">移除</button>'
+      +   '</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+/* 顶部导航：跳转 + 滚动高亮 */
+function initNav(){
+  const nav = document.getElementById('navRow');
+  if(!nav) return;
+  const items = [
+    ['s-concl','结论'],['s-tier','分层'],['s-ov','总览'],['s-hold','持仓池 · 筛选'],
+    ['s-chart','图表'],['s-score','评分'],['s-cards','逐只体检'],['s-levels','买卖价'],
+    ['s-port','组合视角'],['s-pri','优先级'],['s-pool','自选池'],['s-risk','风险提醒'],['s-disc','数据口径']
+  ];
+  nav.innerHTML = items.map(it=>'<button class="navbtn" data-t="'+it[0]+'">'+it[1]+'</button>').join('');
+  nav.querySelectorAll('.navbtn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const el = document.getElementById(b.dataset.t);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+  const onScroll = ()=>{
+    let cur = items[0][0];
+    items.forEach(it=>{
+      const el = document.getElementById(it[0]);
+      if(el && el.getBoundingClientRect().top <= 96) cur = it[0];
+    });
+    nav.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('on', b.dataset.t===cur));
+  };
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+  onScroll();
 }
 
 /* ---------- 组合视角 ---------- */
@@ -1080,7 +1313,11 @@ function renderPortfolio(){
 
 /* ---------- 优先级 ---------- */
 function renderPriority(){
-  const order = stocks.slice().sort((a,b)=>score(b).total-score(a).total);
+  const order = stocks.filter(passFlt).slice().sort((a,b)=>score(b).total-score(a).total);
+  if(!order.length){
+    document.getElementById('priList').innerHTML = '<li style="color:#6d7783">当前筛选下没有标的，请放宽筛选条件或点「清除筛选」。</li>';
+    return;
+  }
   document.getElementById('priList').innerHTML = order.map(s=>{
     const sc = score(s), v = verdict(sc.total);
     const dims=[['估值',sc.val],['质量',sc.qual],['成长',sc.grow],['资金',sc.fund],['技术',sc.tech]].sort((a,b)=>a[1]-b[1]);
@@ -1191,7 +1428,7 @@ function renderLevels(){
 }
 
 /* =======================================================================
-   补仓候选池 · 量化筛选
+   自选池（原「补仓候选池」） · 量化筛选
    ======================================================================= */
 const FILTER_SPEC = [
   {k:'pepMax',  label:'PE 五年分位上限',        unit:'%', def:45,   step:5,    min:0,    max:100, empty:100},
@@ -1319,14 +1556,14 @@ function renderPool(){
 
   const nPass = rows.filter(r=>r.pass).length;
   document.getElementById('poolCnt').textContent = '通过 '+nPass+' / '+POOL.length+' 只 · 按匹配分排序';
-  document.getElementById('poolSub').textContent = POOL.length+' 只跨行业样本池 · 按阈值机械筛选 · 非投资建议';
+  document.getElementById('poolSub').textContent = POOL.length+' 只自选样本池 · 按阈值机械筛选 · 买入/卖出参考价重点标注 · 非投资建议';
   document.getElementById('filterHint').innerHTML =
     '匹配分 = 质地分 × 0.55 + 适配分 × 0.45。质地分沿用与持仓相同的五维模型；适配分 = 低相关性 60% + 防御属性 40%（防御属性取「低负债 + 高股息」）。'
     + '当前阈值下 <b>'+nPass+'</b> 只通过。金融股的资产负债率为行业口径，已豁免低负债要求。'
     + '「买入价 / 卖出价」由 150 日前复权日K的<b>最近支撑 / 最近压力</b>叠加质地分修正得到，规则与上方「买卖参考价」板块完全一致。';
 
   let h = '<thead><tr>'
-    + ['标的','行业','今日','PE','PE分位','ROE','净利同比','负债率','股息率','20日资金','相关性','买入价','卖出价','质地分','适配分','匹配分','状态']
+    + ['标的','行业','今日','买入价','卖出价','PE','PE分位','ROE','净利同比','负债率','股息率','20日资金','相关性','质地分','适配分','匹配分','状态']
       .map(x=>'<th>'+x+'</th>').join('') + '</tr></thead><tbody>';
   rows.forEach(r=>{
     const p = r.p;
@@ -1334,6 +1571,8 @@ function renderPool(){
       + '<td><span class="nm">'+p.name+'</span><span class="cd">'+p.code+'</span></td>'
       + '<td style="text-align:left;color:#6d7783">'+p.ind+'</td>'
       + '<td class="mono '+cls(p.chg)+'">'+sgn(p.chg)+'%</td>'
+      + '<td class="mono">'+(r.lv==null?'<span class="pill na">—</span>':'<span class="pill buy">'+fnum(r.lv.buy)+'</span>')+'</td>'
+      + '<td class="mono">'+(r.lv==null?'<span class="pill na">—</span>':'<span class="pill sell">'+fnum(r.lv.sell)+'</span>')+'</td>'
       + '<td class="mono">'+(p.pe==null?'—':fnum(p.pe))+'</td>'
       + '<td class="mono">'+(p.pep==null?'—':fnum(p.pep,1)+'%')+'</td>'
       + '<td class="mono">'+(p.roe==null?'—':fnum(p.roe,1)+'%')+'</td>'
@@ -1342,8 +1581,6 @@ function renderPool(){
       + '<td class="mono">'+(p.dy==null?'—':fnum(p.dy)+'%')+'</td>'
       + '<td class="mono '+cls(p.flow)+'">'+sgn(p.flow)+'</td>'
       + '<td class="mono">'+(p.corrAvg==null?'—':p.corrAvg.toFixed(2))+'</td>'
-      + '<td class="mono" style="color:#2c4f6e">'+(r.lv==null?'—':fnum(r.lv.buy))+'</td>'
-      + '<td class="mono" style="color:#b5622e">'+(r.lv==null?'—':fnum(r.lv.sell))+'</td>'
       + '<td class="mono">'+Math.round(r.b)+'</td>'
       + '<td class="mono">'+Math.round(r.fit)+'</td>'
       + '<td class="mono"><b>'+r.m+'</b></td>'
@@ -1395,7 +1632,7 @@ function addPoolStock(sym){
   };
   const sc = score(obj), v = verdict(sc.total);
   const dims = [['估值',sc.val],['质量',sc.qual],['成长',sc.grow],['资金',sc.fund],['技术',sc.tech]].sort((a,b)=>a[1]-b[1]);
-  obj.note = '来自补仓候选池（匹配分 '+m+'，与本组合平均相关性 '+(p.corrAvg==null?'—':p.corrAvg.toFixed(2))+'）。'
+  obj.note = '来自自选池（匹配分 '+m+'，与本组合平均相关性 '+(p.corrAvg==null?'—':p.corrAvg.toFixed(2))+'）。'
     + '纳入本页统一模型后综合分 <b>'+sc.total+'</b>，判定「'+v.label+'」。相对优势：'+dims[dims.length-1][0]+' '+Math.round(dims[dims.length-1][1])+' 分；'
     + '主要短板：'+dims[0][0]+' '+Math.round(dims[0][1])+' 分。加入后组合的行业分布、相关性矩阵与加权指标会同步重算——注意相关性矩阵只覆盖初始五只，新标的显示为「—」。';
   stocks.push(obj);
@@ -1457,6 +1694,7 @@ function toast(msg){
   clearTimeout(tmr); tmr=setTimeout(()=>t.classList.remove('on'),2200);
 }
 
+initNav();
 render();
 </script>
 </body>
