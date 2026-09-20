@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -596,7 +596,7 @@ const CORR_NAMES = ['贵州茅台','宁德时代','比亚迪','恒瑞医药','�
 /* 候选池样本（18 只，2026-09-14）。
    相关性 corrAvg / corrMax = 近一月日收益与当前持仓五只的相关系数（均值 / 最大）。
    fin:true 表示金融业，资产负债率为行业口径（含存款/保费负债），不参与杠杆对比。 */
-const POOL = [
+const POOL_BROKEN = [
   {sym:'sh600036', name:'招商银行', code:'600036.SH', ind:'银行', price:40.59, chg:-0.02, pe:6.87, pep:58.5608, pb:0.91, pbp:25.1447, roe:13.44, npm:44.77, gpm:null, debt:90.2, rev:0.01, np:1.21, dy:4.82, flow:-8.57, flow1:0.54, rsi6:40.57, maDev:-0.19, m1:3.68, corrAvg:-0.029, corrMax:0.592, fin:true},
   {sym:'sh601288', name:'农业银行', code:'601288.SH', ind:'银行', price:6.81, chg:-1.16, pe:8.19, pep:88.6683, pb:0.85, pbp:84.2845, roe:10.16, npm:40.26, gpm:null, debt:93.35, rev:2.08, np:3.18, dy:3.56, flow:-3.19, flow1:-1.37, rsi6:38.21, maDev:-1.16, m1:0.59, corrAvg:-0.13, corrMax:0.387, fin:true},
   {sym:'sh601318', name:'中国平安', code:'601318.SH', ind:'保险', price:53.37, chg:0.04, pe:6.23, pep:0.1654, pb:0.98, pbp:38.2961, roe:14.0, npm:15.07, gpm:null, debt:89.81, rev:2.1, np:6.45, dy:4.93, flow:-5.39, flow1:4.92, rsi6:29.46, maDev:-2.83, m1:4.44, corrAvg:0.117, corrMax:0.306, fin:true},
