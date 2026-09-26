@@ -254,7 +254,7 @@ section{scroll-margin-top:62px}
       <div class="kicker">Portfolio Health Check</div>
       <h1>持仓体检 · 五只核心白马</h1>
       <div class="meta">
-        <span>数据时点 <b>2026-09-24 收盘</b></span>
+        <span>数据时点 <b>2026-09-26 收盘</b></span>
         <span>标的 <b id="cntTxt">5 只</b></span>
         <span>口径 <b>行情 / 估值分位 / 年报财务 / 主力资金 / 技术指标 / 150日K线技术位</b></span>
       </div>
@@ -608,13 +608,13 @@ const POOL = [
   {sym:'sh600887', name:'伊利股份', code:'600887.SH', ind:'食品饮料', price:26.9, chg:-0.07, pe:16.66, pep:34.9049, pb:3.14, pbp:18.6931, roe:20.87, npm:9.96, gpm:34.58, debt:61.51, rev:0.21, np:36.82, dy:5.14, flow:5.53, flow1:0.18, rsi6:65.9, maDev:1.08, m1:3.86, corrAvg:0.091, corrMax:0.51},
   {sym:'sh600309', name:'万华化学', code:'600309.SH', ind:'化工', price:69.45, chg:-3.0, pe:14.16, pep:27.2126, pb:2.1, pbp:15.0538, roe:12.44, npm:6.91, gpm:13.61, debt:62.81, rev:11.62, np:-3.88, dy:1.7, flow:3.54, flow1:-2.46, rsi6:28.63, maDev:-6.14, m1:-3.62, corrAvg:0.103, corrMax:0.474},
   {sym:'sh601899', name:'紫金矿业', code:'601899.SH', ind:'有色金属', price:30.01, chg:-4.46, pe:12.68, pep:11.4971, pb:4.5, pbp:81.555, roe:33.04, npm:18.28, gpm:27.73, debt:51.56, rev:14.96, np:61.55, dy:1.86, flow:-24.29, flow1:-12.83, rsi6:22.07, maDev:-7.9, m1:-10.9, corrAvg:0.07, corrMax:0.442},
-  {sym:'sz002371', name:'北方华创', code:'002371.SZ', ind:'半导体设备', price:653.06, chg:-2.26, pe:80.94, pep:71.9603, pb:11.35, pbp:88.3375, roe:16.41, npm:13.74, gpm:40.1, debt:51.08, rev:30.85, np:-1.77, dy:0.12, flow:-1.41, flow1:-1.87, rsi6:40.48, maDev:-1.08, m1:-6.76, corrAvg:0.069, corrMax:0.747},
+  {sym:'sz002371', name:'北方华创', code:'002371.SZ', ind:'半导体设备', price:653.06, chg:-2.26, pe:80.94, pep:71.9603, pb:11.35, pbp:88.3375, roe:16.41, npm:13.74, gpm:40.1, debt:51.08, rev:30.85, np:-1.77, dy:0.12, flow:-1.41, flow1:-1.87, rsi6:40.49, maDev:-1.08, m1:-6.76, corrAvg:0.069, corrMax:0.747},
   {sym:'sz300760', name:'迈瑞医疗', code:'300760.SZ', ind:'医疗器械', price:153.86, chg:-1.03, pe:25.08, pep:21.7535, pb:5.06, pbp:7.196, roe:21.58, npm:25.39, gpm:60.32, debt:27.43, rev:-9.38, np:-30.28, dy:2.74, flow:-11.28, flow1:-0.29, rsi6:20.68, maDev:-5.14, m1:-4.31, corrAvg:-0.057, corrMax:0.337},
   {sym:'sh603259', name:'药明康德', code:'603259.SH', ind:'CXO', price:162.4, chg:-3.3, pe:21.15, pep:46.981, pb:5.6, pbp:74.7725, roe:28.56, npm:42.53, gpm:47.64, debt:22.18, rev:15.84, np:102.65, dy:1.44, flow:8.95, flow1:-3.07, rsi6:51.87, maDev:2.77, m1:1.19, corrAvg:0.04, corrMax:0.33},
   {sym:'sh601012', name:'隆基绿能', code:'601012.SH', ind:'光伏', price:11.04, chg:-3.24, pe:null, pep:null, pb:1.78, pbp:6.3689, roe:-11.15, npm:-9.25, gpm:0.81, debt:64.43, rev:-14.82, np:25.29, dy:null, flow:-7.24, flow1:-1.11, rsi6:29.78, maDev:-4.51, m1:-9.29, corrAvg:0.215, corrMax:0.492, loss:true},
-  {sym:'sh600031', name:'三一重工', code:'600031.SH', ind:'工程机械', price:17.51, chg:-1.19, pe:20.47, pep:21.34, pb:1.98, pbp:24.483, roe:11.18, npm:9.51, gpm:27.54, debt:48.39, rev:14.73, np:41.18, dy:2.46, flow:-6.54, flow1:-0.93, rsi6:12.78, maDev:-8.89, m1:-5.91, corrAvg:-0.042, corrMax:0.049},
-  {sym:'sz300124', name:'汇川技术', code:'300124.SZ', ind:'工控自动化', price:52.72, chg:-2.46, pe:29.65, pep:5.7072, pb:3.94, pbp:0.0, roe:16.34, npm:11.47, gpm:28.95, debt:47.93, rev:21.77, np:17.84, dy:0.93, flow:-3.98, flow1:-0.99, rsi6:37.56, maDev:-6.42, m1:-9.57, corrAvg:0.16, corrMax:0.473},
-  {sym:'sh601888', name:'中国中免', code:'601888.SH', ind:'免税消费', price:52.19, chg:-0.15, pe:26.23, pep:15.3019, pb:1.87, pbp:0.4136, roe:6.48, npm:6.87, gpm:32.75, debt:18.48, rev:-4.92, np:-15.96, dy:1.35, flow:-4.43, flow1:0.28, rsi6:49.4, maDev:-1.03, m1:0.25, corrAvg:0.269, corrMax:0.586},
+  {sym:'sh600031', name:'三一重工', code:'600031.SH', ind:'工程机械', price:17.2, chg:-1.77, pe:20.47, pep:21.34, pb:1.98, pbp:24.483, roe:11.18, npm:9.51, gpm:27.54, debt:48.39, rev:14.73, np:41.18, dy:2.46, flow:-6.71, flow1:-1.45, rsi6:10.27, maDev:-10.07, m1:-9.23, corrAvg:-0.042, corrMax:0.049},
+  {sym:'sz300124', name:'汇川技术', code:'300124.SZ', ind:'工控自动化', price:51.88, chg:-1.59, pe:29.65, pep:5.7072, pb:3.94, pbp:0.0, roe:16.34, npm:11.47, gpm:28.95, debt:47.93, rev:21.77, np:17.84, dy:0.93, flow:-4.62, flow1:0.17, rsi6:31.59, maDev:-7.06, m1:-15.49, corrAvg:0.16, corrMax:0.473},
+  {sym:'sh601888', name:'中国中免', code:'601888.SH', ind:'免税消费', price:51.46, chg:-1.4, pe:26.23, pep:15.3019, pb:1.87, pbp:0.4136, roe:6.48, npm:6.87, gpm:32.75, debt:18.48, rev:-4.92, np:-15.96, dy:1.35, flow:-4.72, flow1:-0.29, rsi6:34.93, maDev:-2.26, m1:-2.19, corrAvg:0.269, corrMax:0.586},
 ];
 
 /* =======================================================================
@@ -625,6 +625,7 @@ const POOL = [
    res 为 null 表示已创阶段新高、上方无技术压力
    ======================================================================= */
 const TECH = {
+  sh600031:{n:'三一重工',sup:16.34,supSrc:'现价×0.95',res:19.125,resSrc:'MA20',sig:2.22},
   sh600036:{n:'招商银行',sup:39.622,supSrc:'20日低',res:40.902,resSrc:'MA20',sig:1.06},
   sh600276:{n:'恒瑞医药',sup:42.728,supSrc:'60日低',res:47.193,resSrc:'20日高',sig:1.82},
   sh600309:{n:'万华化学',sup:66.98,supSrc:'60日低',res:72.78,resSrc:'MA60',sig:1.88},
@@ -635,7 +636,7 @@ const TECH = {
   sh601012:{n:'隆基绿能',sup:10.989,supSrc:'20日低',res:11.561,resSrc:'MA20',sig:1.66},
   sh601088:{n:'中国神华',sup:47.311,supSrc:'MA20',res:48.49,resSrc:'60日高',sig:1.32},
   sh601288:{n:'农业银行',sup:6.767,supSrc:'20日低',res:6.897,resSrc:'MA20',sig:1.27},
-  sh601318:{n:'中国平安',sup:52.71,supSrc:'MA60',res:54.8,resSrc:'MA20',sig:1.38},
+  sh601888:{n:'中国中免',sup:51.12,supSrc:'20日低',res:52.65,resSrc:'MA20',sig:1.30},
   sh601899:{n:'紫金矿业',sup:26.653,supSrc:'60日低',res:31.753,resSrc:'MA60',sig:2.24},
   sh603259:{n:'药明康德',sup:158.03,supSrc:'MA20',res:169.49,resSrc:'20日高',sig:2.09},
   sz000333:{n:'美的集团',sup:81.04,supSrc:'20日低',res:84.39,resSrc:'MA60',sig:1.41},
@@ -643,6 +644,7 @@ const TECH = {
   sz002371:{n:'北方华创',sup:626.12,supSrc:'60日低',res:660.17,resSrc:'MA20',sig:2.20},
   sz002475:{n:'立讯精密',sup:51.51,supSrc:'20日低',res:54.73,resSrc:'MA20',sig:2.40},
   sz002594:{n:'比亚迪',sup:83.49,supSrc:'20日低',res:86.11,resSrc:'MA20',sig:1.59},
+  sz300124:{n:'汇川技术',sup:50.95,supSrc:'60日低',res:55.82,resSrc:'MA20',sig:1.60},
   sz300750:{n:'宁德时代',sup:278.82,supSrc:'现价×0.95',res:329.47,resSrc:'MA20',sig:2.04},
   sz300760:{n:'迈瑞医疗',sup:137.38,supSrc:'60日低',res:162.19,resSrc:'MA20',sig:1.26},
 };
